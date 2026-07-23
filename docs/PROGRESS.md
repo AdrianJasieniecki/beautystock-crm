@@ -4,35 +4,46 @@ Last updated: 2026-07-23
 
 ## Current phase
 
-**Phase 0 — Project foundation and documentation**
+**Phase 1 — Backend API foundation**
 
-The remote repository is functionally empty: `Production` contains only an
-initial one-line README. No application or infrastructure implementation exists.
+The documentation and GitHub delivery foundation are published. No application
+or infrastructure implementation exists yet. The first owner-implemented task,
+`[Task] Generate Spring Boot backend-api skeleton` (#7), is `Ready`.
 
 ## Completed
 
 - Confirmed repository: `AdrianJasieniecki/beautystock-crm`.
 - Confirmed default branch: `Production`.
-- Confirmed GitHub integration reports read, push, triage, maintain, and admin
-  access.
-- Confirmed no open Issues or Pull Requests existed before project setup.
-- Defined proposed modular-monolith plus worker architecture.
-- Prepared the initial documentation set locally.
-- Defined the roadmap, backlog, API plan, review rules, and initial ADRs.
-- Prepared copy-ready bodies for all 69 initial GitHub Issues.
+- Published the documentation foundation through
+  [PR #1](https://github.com/AdrianJasieniecki/beautystock-crm/pull/1).
+- Defined the modular-monolith plus worker architecture, roadmap, backlog, API
+  plan, review rules, local/deployment plans, and initial ADRs.
+- Created the complete agreed label taxonomy.
+- Created 69 open GitHub Issues (#2–#70) from the reviewed import package.
+- Created and linked the public
+  [BeautyStock CRM — Learning & Delivery](https://github.com/users/AdrianJasieniecki/projects/5)
+  project.
+- Configured `Backlog`, `Current Work`, and `Completed` project views.
+- Configured project statuses from `Proposed` through `Done`.
+- Configured automatic addition of new open repository Issues to the project.
+- Removed automatic Issue closure when an item moves to `Done`; closure remains
+  an explicit owner decision.
+- Moved Issue #7 to `Ready`.
 
 ## In progress
 
-- Resolve the GitHub connector write-approval failure.
-- Publish documentation on `docs/project-foundation`.
-- Open a documentation PR to `Production`.
-- Create the initial GitHub Issues from the prepared import package.
+- Synchronize project progress and branch-strategy documentation with the
+  published GitHub state.
+- Review the documentation-foundation acceptance criteria before the owner
+  closes Issue #3.
 
 ## Next step
 
-Publish the prepared documentation and Issues when GitHub write operations become
-available. The repository owner then reviews the documentation PR and decides
-whether to merge it. After that, refine and manually implement:
+The repository owner reviews and merges the documentation synchronization PR.
+After merge, the owner may close Issue #3 as completed.
+
+Then the owner creates the suggested implementation branch and manually
+implements:
 
 `[Task] Generate Spring Boot backend-api skeleton`
 
@@ -52,13 +63,16 @@ Suggested owner-created branch:
 | Message dual-write | Known risk | Use documented simple phase, then implement Outbox |
 | Authentication/authorization | Deferred | Add explicit security milestone before public production use |
 | Azure cost/topology | Deferred | Estimate before provisioning any resources |
-| GitHub connector writes | Blocked | Internal approval reviewer rejects writes despite explicit owner approval |
 
 ## Links
 
 - [Repository](https://github.com/AdrianJasieniecki/beautystock-crm)
 - [Issues](https://github.com/AdrianJasieniecki/beautystock-crm/issues)
 - [Pull Requests](https://github.com/AdrianJasieniecki/beautystock-crm/pulls)
+- [GitHub Project](https://github.com/users/AdrianJasieniecki/projects/5)
+- [Documentation foundation PR](https://github.com/AdrianJasieniecki/beautystock-crm/pull/1)
+- [Documentation foundation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/3)
+- [Next implementation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/7)
 - [Roadmap](ROADMAP.md)
 - [Backlog](BACKLOG.md)
 - [Architecture decisions](DECISIONS.md)

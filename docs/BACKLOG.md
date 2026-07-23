@@ -92,7 +92,7 @@ GitHub workflow needed for small manual implementation increments.
 
 | Item | Type | Priority | Status | Depends on |
 | --- | --- | --- | --- | --- |
-| Create documentation foundation | Task | High | In progress | None |
+| Create documentation foundation | Task | High | In review | None |
 | Define GitHub workflow and review checklist | Task | High | In progress | None |
 | Prepare initial architecture decision records | Task | High | In progress | None |
 
@@ -135,7 +135,7 @@ error handling, PostgreSQL, Flyway, testing foundations, and configuration rules
 
 | Item | Type | Priority | Status | Depends on |
 | --- | --- | --- | --- | --- |
-| Generate Spring Boot backend-api skeleton | Task | High | Proposed | Epic 1 |
+| Generate Spring Boot backend-api skeleton | Task | High | Ready | Epic 1 |
 | Add global exception handling contract | Task | High | Proposed | Skeleton |
 | Add API error response model | Task | High | Proposed | Skeleton |
 | Add validation dependency and example request validation | Task | High | Proposed | Error contract |
