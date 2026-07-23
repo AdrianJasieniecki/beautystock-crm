@@ -8,7 +8,8 @@ Last updated: 2026-07-24
 
 The documentation and GitHub delivery foundation are published. The first
 owner-implemented task, `[Task] Generate Spring Boot backend-api skeleton` (#7),
-has been merged and closed. No implementation Issue is currently active.
+has been merged and closed. The next selected task,
+`[Task] Add API error response model` (#9), is `Ready`.
 
 ## Completed
 
@@ -46,16 +47,19 @@ has been merged and closed. No implementation Issue is currently active.
 ## In progress
 
 - No application implementation task is in progress.
-- The next candidate,
-  `[Task] Add global exception handling contract` (#8), remains `Proposed` in
-  the GitHub Project.
+- Issue #9 has a reviewed implementation brief and is `Ready` in the GitHub
+  Project.
+- Issue #8 remains `Proposed` and now explicitly depends on the error response
+  model from #9.
+- Issue #10 remains `Proposed` and depends on both the response model and global
+  exception handling.
 
 ## Next step
 
-Refine
-`[Task] Add global exception handling contract` (#8), confirm its implementation
-guidance and acceptance criteria, and move it from `Proposed` to `Ready`. The
-repository owner can then create its implementation branch.
+The repository owner creates `feature/api-error-model` from current `Production`
+and manually implements
+`[Task] Add API error response model` (#9) using the Issue brief. Move #9 to
+`In progress` when implementation begins.
 
 ## Open risks and decisions
 
@@ -78,7 +82,7 @@ repository owner can then create its implementation branch.
 - [GitHub Project](https://github.com/users/AdrianJasieniecki/projects/5)
 - [Documentation foundation PR](https://github.com/AdrianJasieniecki/beautystock-crm/pull/1)
 - [Documentation foundation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/3)
-- [Next implementation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/8)
+- [Next implementation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/9)
 - [Roadmap](ROADMAP.md)
 - [Backlog](BACKLOG.md)
 - [Architecture decisions](DECISIONS.md)

@@ -144,9 +144,13 @@ Proposed contract:
 
 Rules:
 
+- `timestamp` is an ISO 8601 UTC instant and `status` is a JSON number;
 - `code` is stable enough for client decisions;
 - `message` is safe and readable, not a stack trace;
-- `violations` is present only for field/object validation errors;
+- `correlationId` is omitted when it is not available;
+- `violations` is omitted when there are no field/object validation errors;
+- each violation exposes only `field`, stable validation `code`, and safe
+  `message`;
 - rejected values are omitted by default because they may contain secrets or
   personal data;
 - log details use the correlation ID;
@@ -293,4 +297,3 @@ For each resource, choose the smallest useful set:
   transaction behaviour matter.
 
 Tests should assert observable behaviour, not merely that mocks were invoked.
-
