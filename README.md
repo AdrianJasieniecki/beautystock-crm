@@ -141,12 +141,16 @@ respective Issues. See [Local development](docs/LOCAL_DEVELOPMENT.md).
 **Phase 1 — Backend API foundation.**
 
 - The project and GitHub delivery foundation is published.
-- The repository owner created the Spring Boot `backend-api` skeleton on
-  `feature/backend-api-foundation`.
+- The repository owner created the Spring Boot `backend-api` skeleton, merged it
+  through [PR #72](https://github.com/AdrianJasieniecki/beautystock-crm/pull/72),
+  and completed Issue #7.
 - The Java 21 build, context test, local-profile startup, and HTTP response from
   the running application have been verified.
 - Business endpoints, persistence, messaging, containers, and the frontend have
   not been implemented yet.
+- The next candidate is
+  [Issue #8 — global exception handling](https://github.com/AdrianJasieniecki/beautystock-crm/issues/8),
+  currently awaiting refinement from `Proposed` to `Ready`.
 
 See [Progress](docs/PROGRESS.md) for the current source of truth.
 
