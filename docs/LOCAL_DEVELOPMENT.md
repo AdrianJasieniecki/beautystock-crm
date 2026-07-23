@@ -2,9 +2,10 @@
 
 ## 1. Status
 
-This document describes the planned local environment. Application skeletons,
-Dockerfiles, `compose.yml`, ports, and final commands do not exist yet. Replace
-placeholders with verified commands as their Issues are implemented.
+The minimal `backend-api` Spring Boot skeleton exists and its build and startup
+commands are verified. PostgreSQL, RabbitMQ, `backend-worker`, `frontend`,
+Dockerfiles, and `compose.yml` are still planned. This document distinguishes
+commands that work now from the future full-system workflow.
 
 ## 2. Prerequisites
 
@@ -14,17 +15,24 @@ Planned developer tools:
 | --- | --- |
 | Git | Current supported version |
 | JDK | Java 21 |
-| Maven | Wrapper preferred once backend exists |
+| Maven | Use Maven 3.9.16 through the wrapper in `backend-api` |
 | Node.js | Active LTS selected in frontend foundation Issue |
 | npm/pnpm | One package manager selected and locked |
 | Docker | Docker Engine/Desktop with Compose v2 |
 | API client | Optional: curl, HTTP client, or Postman |
 
-Verify versions after project skeletons exist:
+Verify the current backend toolchain:
 
-```text
+```bash
 java -version
+cd backend-api
 ./mvnw -version
+```
+
+Both commands must report Java 21. Verify the remaining tools when their project
+foundations are introduced:
+
+```bash
 node --version
 docker version
 docker compose version
@@ -36,12 +44,12 @@ docker compose version
 | --- | --- | --- |
 | PostgreSQL | Application database | Host port chosen in Compose |
 | RabbitMQ | Event broker | AMQP plus local management UI |
-| backend-api | REST API | Host HTTP port |
+| backend-api | REST API | `8080` by default; override with `SERVER_PORT` |
 | backend-worker | Queue consumer | No public application port required except management |
 | frontend | Admin UI | Development or container port |
 
-Exact ports are intentionally deferred to avoid documenting values before
-configuration exists.
+Ports for services other than `backend-api` are intentionally deferred to avoid
+documenting values before their configuration exists.
 
 ## 4. Environment configuration
 
@@ -71,10 +79,12 @@ Examples should use clearly local-only credentials.
 
 ### `local`
 
-- connects to local/Compose PostgreSQL and RabbitMQ;
-- enables developer-friendly logs without exposing secrets;
-- may expose selected local management endpoints;
-- does not alter schema with Hibernate.
+- currently activates local configuration and reads the HTTP port from
+  `SERVER_PORT`, defaulting to `8080`;
+- will connect to local/Compose PostgreSQL and RabbitMQ when those integrations
+  are implemented;
+- may later expose selected local management endpoints;
+- must not alter schema with Hibernate after persistence is introduced.
 
 ### `test`
 
@@ -93,7 +103,27 @@ Examples should use clearly local-only credentials.
 Do not create many profiles that differ only by small values. Prefer common
 configuration plus environment variables.
 
-## 6. Planned startup workflow
+## 6. Current backend workflow
+
+From the repository root:
+
+```bash
+cd backend-api
+./mvnw clean verify
+SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
+```
+
+Expected results:
+
+- the build completes with the Spring context test passing;
+- the application reports the `local` profile;
+- embedded Tomcat listens on port `8080`, unless `SERVER_PORT` overrides it;
+- `GET /` returns `404` because the foundation task deliberately adds no sample
+  or business endpoint.
+
+Stop the application with `Ctrl+C`.
+
+## 7. Planned full-system startup workflow
 
 After relevant Issues are implemented:
 
@@ -109,18 +139,18 @@ After relevant Issues are implemented:
 
 The final Compose phase should reduce this to a small number of verified commands.
 
-## 7. Planned backend workflow
+## 8. Backend test workflow
 
-Expected Maven wrapper commands:
+Run Maven commands from `backend-api`:
 
-```text
+```bash
 ./mvnw test
 ./mvnw verify
 ./mvnw spring-boot:run
 ```
 
-The exact multi-module command depends on whether the repository uses a root
-parent build. This remains a decision for the backend foundation Issue.
+`backend-api` is an independent Maven build. There is no root parent or
+aggregator build at this stage; see ADR-015 in [Architecture decisions](DECISIONS.md).
 
 Test selection guidance:
 
@@ -129,11 +159,11 @@ Test selection guidance:
 - run PostgreSQL/RabbitMQ Testcontainers integration tests before PR;
 - run the full relevant build before requesting review.
 
-## 8. Planned frontend workflow
+## 9. Planned frontend workflow
 
 Expected commands after the frontend toolchain is selected:
 
-```text
+```bash
 npm install
 npm run dev
 npm run test
@@ -142,7 +172,7 @@ npm run build
 
 The committed lockfile is authoritative. Do not mix npm, pnpm, and yarn lockfiles.
 
-## 9. Database and Flyway
+## 10. Database and Flyway
 
 - Flyway owns schema history.
 - Hibernate must not use `ddl-auto=update` in production-like environments.
@@ -151,7 +181,7 @@ The committed lockfile is authoritative. Do not mix npm, pnpm, and yarn lockfile
 - Never edit an already shared migration casually.
 - Test migrations from an empty database and from the previous schema.
 
-## 10. RabbitMQ
+## 11. RabbitMQ
 
 Local documentation will eventually include:
 
@@ -161,11 +191,12 @@ Local documentation will eventually include:
 - how to replay a failed message safely;
 - how consumers stop gracefully.
 
-## 11. Troubleshooting checklist
+## 12. Troubleshooting checklist
 
 When startup fails:
 
-1. confirm selected Java/Node/Docker versions;
+1. from `backend-api`, confirm `java -version` and `./mvnw -version` both report
+   Java 21;
 2. confirm dependency containers are healthy, not merely started;
 3. check active Spring profile;
 4. check required environment variables without printing secrets;
@@ -176,11 +207,10 @@ When startup fails:
 9. run the smallest failing test;
 10. document a recurring fix in this file.
 
-## 12. Safe local data handling
+## 13. Safe local data handling
 
 - Use synthetic salon/customer data.
 - Do not use real customer contact details.
 - Treat database dumps, heap dumps, and log archives as potentially sensitive.
 - Keep diagnostic artifacts outside Git and delete them using a deliberate,
   narrow operation when no longer needed.
-

@@ -1,14 +1,14 @@
 # Progress
 
-Last updated: 2026-07-23
+Last updated: 2026-07-24
 
 ## Current phase
 
 **Phase 1 — Backend API foundation**
 
-The documentation and GitHub delivery foundation are published. No application
-or infrastructure implementation exists yet. The first owner-implemented task,
-`[Task] Generate Spring Boot backend-api skeleton` (#7), is `Ready`.
+The documentation and GitHub delivery foundation are published. The first
+owner-implemented task, `[Task] Generate Spring Boot backend-api skeleton` (#7),
+is in progress on `feature/backend-api-foundation`.
 
 ## Completed
 
@@ -29,34 +29,34 @@ or infrastructure implementation exists yet. The first owner-implemented task,
 - Removed automatic Issue closure when an item moves to `Done`; closure remains
   an explicit owner decision.
 - Moved Issue #7 to `Ready`.
+- Merged the documentation synchronization PR and marked that project item as
+  `Done`.
+- Installed JDK 21 for the backend toolchain.
 
 ## In progress
 
-- Synchronize project progress and branch-strategy documentation with the
-  published GitHub state.
-- Review the documentation-foundation acceptance criteria before the owner
-  closes Issue #3.
+- The repository owner created the minimal `backend-api` skeleton with Spring
+  Boot 4.1.0, Java 21, Maven 3.9.16 through the project wrapper, Spring MVC, a
+  local profile, and a context smoke test.
+- The Java 21 build and test pass.
+- The application starts with the `local` profile on port `8080`; `GET /`
+  correctly returns `404` because no sample or business endpoint was added.
+- Documentation is being synchronized with the implementation before the first
+  backend PR.
 
 ## Next step
 
-The repository owner reviews and merges the documentation synchronization PR.
-After merge, the owner may close Issue #3 as completed.
-
-Then the owner creates the suggested implementation branch and manually
-implements:
-
-`[Task] Generate Spring Boot backend-api skeleton`
-
-Suggested owner-created branch:
-
-`feature/backend-api-foundation`
+Commit the reviewed backend skeleton and synchronized documentation. Then push
+`feature/backend-api-foundation`, open a PR to `Production`, link Issue #7, and
+move the project item to `In review`. The repository owner decides whether to
+merge and close the Issue after review.
 
 ## Open risks and decisions
 
 | Item | Status | Next action |
 | --- | --- | --- |
-| Exact Spring Boot/dependency versions | Open | Decide in backend skeleton Issue using current official support information |
-| Maven monorepo structure | Open | Compare parent multi-module build with independent builds |
+| Backend foundation versions | Resolved for current skeleton | Spring Boot 4.1.0 and Maven 3.9.16 via the project wrapper; review upgrades deliberately |
+| Maven monorepo structure | Resolved for current stage | Keep `backend-api` independent; revisit when another build requires aggregation (ADR-015) |
 | Salon email uniqueness | Open | Confirm business rule during Salon story refinement |
 | Order state semantics | Open | Define transition table before implementing placement |
 | Inventory locking | Proposed | Validate optimistic locking with concurrency tests |

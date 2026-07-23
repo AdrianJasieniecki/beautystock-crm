@@ -340,3 +340,34 @@ calendar date rather than an instant.
 - forecasts must distinguish durations, instants, and local dates;
 - tests should use an injectable `Clock` for time-dependent logic.
 
+## ADR-015 — Start backend-api as an independent Maven build
+
+- **Status:** Accepted
+- **Date:** 2026-07-24
+
+### Context
+
+The repository currently contains one deployable application. `backend-worker`
+will be introduced later, and the need for shared Maven configuration has not yet
+been demonstrated. Adding a root parent and aggregator now would create another
+build layer before it solves a concrete problem.
+
+### Decision
+
+Build `backend-api` as an independent Maven project under `backend-api/`, with
+its own `pom.xml` and Maven Wrapper. The initial foundation uses Java 21, Spring
+Boot 4.1.0, and Maven 3.9.16 through the project wrapper. Business capabilities
+remain packages inside this application. Do not add a root Maven aggregator yet.
+
+Revisit the decision when another JVM component, shared plugin configuration, or
+a single coordinated build creates a measurable benefit.
+
+### Consequences
+
+- backend commands run from `backend-api`;
+- the first application can be built and released in isolation;
+- no unused root build structure needs to be maintained;
+- some Maven configuration may initially be duplicated when `backend-worker`
+  appears;
+- a root parent or aggregator can be introduced later through a focused Issue and
+  a superseding or clarifying ADR.

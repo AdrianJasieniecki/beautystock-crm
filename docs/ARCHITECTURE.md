@@ -72,11 +72,12 @@ on evidence.
                                   └───────────────────────────┘
 ```
 
-## 4. Proposed repository structure
+## 4. Repository structure
 
 ```text
 beautystock-crm/
 ├── backend-api/
+│   ├── mvnw
 │   ├── pom.xml
 │   └── src/
 │       ├── main/
@@ -84,21 +85,27 @@ beautystock-crm/
 │       │   └── resources/
 │       │       └── db/migration/
 │       └── test/
-├── backend-worker/
+├── backend-worker/          # planned
 │   ├── pom.xml
 │   └── src/
-├── frontend/
+├── frontend/                # planned
 │   ├── package.json
 │   └── src/
-├── docker/
-├── k8s/
+├── docker/                  # planned
+├── k8s/                     # planned
 ├── docs/
-├── compose.yml
+├── compose.yml              # planned
 └── README.md
 ```
 
-Only documentation is created in Phase 0. Application and infrastructure
-directories appear when their owner implements the corresponding Issues.
+`backend-api` is an independent Maven build with its own wrapper. The repository
+does not have a root Maven parent or aggregator at this stage. This keeps the
+first deployable component simple and can be revisited when `backend-worker` or
+shared build configuration creates a concrete need; see ADR-015 in
+[Architecture decisions](DECISIONS.md).
+
+The remaining application and infrastructure directories appear when their owner
+implements the corresponding Issues.
 
 ## 5. Backend module structure
 
@@ -327,8 +334,7 @@ benefits from separate scaling and failure handling.
 
 ## 15. Deferred decisions
 
-- exact Spring Boot and dependency versions;
-- monorepo Maven parent versus independent builds;
+- versions for dependencies and platforms not yet introduced;
 - MapStruct versus manual mapping;
 - Spring Modulith adoption;
 - authentication and authorization scope;
@@ -339,4 +345,3 @@ benefits from separate scaling and failure handling.
 
 Deferred choices are resolved in focused Issues and recorded in
 [Architecture decisions](DECISIONS.md).
-

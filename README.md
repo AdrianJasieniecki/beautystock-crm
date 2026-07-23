@@ -60,7 +60,7 @@ capabilities.
 
 | Area | Planned technology |
 | --- | --- |
-| Backend | Java 21, Spring Boot, Maven |
+| Backend | Java 21, Spring Boot 4.1.0, Maven 3.9.16 via project wrapper |
 | API | Spring MVC, Bean Validation, DTO mapping |
 | Persistence | PostgreSQL, Spring Data JPA, Hibernate, Flyway |
 | Messaging | RabbitMQ, Spring AMQP |
@@ -70,30 +70,37 @@ capabilities.
 | Deployment | Kubernetes, Azure Container Registry, AKS, Azure Database for PostgreSQL |
 | Operations | Spring Boot Actuator, structured logs, metrics |
 
-Exact dependency and platform versions will be selected in the implementation
-issues and recorded in architecture decisions. No application skeleton has been
-generated yet.
+The initial `backend-api` versions are recorded in its `pom.xml` and Maven
+Wrapper configuration. Versions for dependencies and platforms that have not yet
+been introduced will be selected in their implementation Issues and recorded in
+architecture decisions when the choice affects the project.
 
-## Proposed repository structure
+## Repository structure
 
 ```text
 beautystock-crm/
 ├── backend-api/
+│   ├── mvnw
 │   ├── pom.xml
 │   └── src/
-├── backend-worker/
+├── backend-worker/          # planned
 │   ├── pom.xml
 │   └── src/
-├── frontend/
+├── frontend/                # planned
 │   └── src/
-├── docker/
-├── k8s/
+├── docker/                  # planned
+├── k8s/                     # planned
 ├── docs/
-├── compose.yml
+├── compose.yml              # planned
 └── README.md
 ```
 
-The proposed backend package layout is package-by-business-module rather than a
+`backend-api` is currently an independent Maven build with its own wrapper. A
+root aggregator is intentionally deferred until another component creates a
+concrete need for one. See ADR-015 in
+[Architecture decisions](docs/DECISIONS.md).
+
+The backend package layout will be package-by-business-module rather than a
 single repository-wide `controller/service/repository` split:
 
 ```text
@@ -113,28 +120,33 @@ another module's repositories.
 
 ## Local development
 
-The application is not runnable yet. The planned local workflow is:
+The minimal `backend-api` skeleton can already be built, tested, and started.
+It currently has no business endpoints, database connection, or messaging
+integration.
 
-1. install Java 21, Maven, Node.js, and Docker;
-2. start PostgreSQL and RabbitMQ with Docker Compose;
-3. run Flyway migrations through the backend;
-4. start `backend-api` using the `local` Spring profile;
-5. start `backend-worker`;
-6. start the React development server.
+Prerequisite: JDK 21.
 
-Commands, ports, environment variables, and verification steps will be added when
-the corresponding skeleton and Compose issues are implemented. See
-[Local development](docs/LOCAL_DEVELOPMENT.md).
+```bash
+cd backend-api
+./mvnw clean verify
+SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
+```
+
+The API starts on port `8080` by default. Set `SERVER_PORT` to override it.
+PostgreSQL, RabbitMQ, the worker, and the frontend will be added in their
+respective Issues. See [Local development](docs/LOCAL_DEVELOPMENT.md).
 
 ## Current status
 
-**Phase 0 — project foundation and documentation.**
+**Phase 1 — Backend API foundation.**
 
-- Architecture, roadmap, backlog, API contract, review rules, and deployment plan
-  are being established.
-- Application code and infrastructure configuration have not been generated.
-- The next implementation task is the Spring Boot `backend-api` skeleton, performed
-  manually by the repository owner after the documentation PR is reviewed.
+- The project and GitHub delivery foundation is published.
+- The repository owner created the Spring Boot `backend-api` skeleton on
+  `feature/backend-api-foundation`.
+- The Java 21 build, context test, local-profile startup, and HTTP response from
+  the running application have been verified.
+- Business endpoints, persistence, messaging, containers, and the frontend have
+  not been implemented yet.
 
 See [Progress](docs/PROGRESS.md) for the current source of truth.
 
