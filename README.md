@@ -148,9 +148,10 @@ respective Issues. See [Local development](docs/LOCAL_DEVELOPMENT.md).
   the running application have been verified.
 - Business endpoints, persistence, messaging, containers, and the frontend have
   not been implemented yet.
-- The next candidate is
-  [Issue #8 — global exception handling](https://github.com/AdrianJasieniecki/beautystock-crm/issues/8),
-  currently awaiting refinement from `Proposed` to `Ready`.
+- The next selected task is
+  [Issue #9 — API error response model](https://github.com/AdrianJasieniecki/beautystock-crm/issues/9),
+  currently `Ready`. It establishes the JSON contract required by global
+  exception handling (#8) and validation mapping (#10).
 
 See [Progress](docs/PROGRESS.md) for the current source of truth.
 
