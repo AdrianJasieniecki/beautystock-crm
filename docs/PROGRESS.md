@@ -8,7 +8,7 @@ Last updated: 2026-07-24
 
 The documentation and GitHub delivery foundation are published. The first
 owner-implemented task, `[Task] Generate Spring Boot backend-api skeleton` (#7),
-is in progress on `feature/backend-api-foundation`.
+has been merged and closed. No implementation Issue is currently active.
 
 ## Completed
 
@@ -32,24 +32,30 @@ is in progress on `feature/backend-api-foundation`.
 - Merged the documentation synchronization PR and marked that project item as
   `Done`.
 - Installed JDK 21 for the backend toolchain.
+- Implemented the minimal `backend-api` skeleton with Spring Boot 4.1.0, Java 21,
+  Maven 3.9.16 through the project wrapper, Spring MVC, a local profile, and a
+  context smoke test.
+- Verified the Java 21 build, context test, local-profile startup on port `8080`,
+  and the expected `404` response from `GET /` without a sample endpoint.
+- Merged the backend foundation through
+  [PR #72](https://github.com/AdrianJasieniecki/beautystock-crm/pull/72).
+- Closed
+  [Issue #7](https://github.com/AdrianJasieniecki/beautystock-crm/issues/7)
+  through the PR's `Closes #7` reference and moved its project item to `Done`.
 
 ## In progress
 
-- The repository owner created the minimal `backend-api` skeleton with Spring
-  Boot 4.1.0, Java 21, Maven 3.9.16 through the project wrapper, Spring MVC, a
-  local profile, and a context smoke test.
-- The Java 21 build and test pass.
-- The application starts with the `local` profile on port `8080`; `GET /`
-  correctly returns `404` because no sample or business endpoint was added.
-- Documentation is being synchronized with the implementation before the first
-  backend PR.
+- No application implementation task is in progress.
+- The next candidate,
+  `[Task] Add global exception handling contract` (#8), remains `Proposed` in
+  the GitHub Project.
 
 ## Next step
 
-Commit the reviewed backend skeleton and synchronized documentation. Then push
-`feature/backend-api-foundation`, open a PR to `Production`, link Issue #7, and
-move the project item to `In review`. The repository owner decides whether to
-merge and close the Issue after review.
+Refine
+`[Task] Add global exception handling contract` (#8), confirm its implementation
+guidance and acceptance criteria, and move it from `Proposed` to `Ready`. The
+repository owner can then create its implementation branch.
 
 ## Open risks and decisions
 
@@ -72,7 +78,7 @@ merge and close the Issue after review.
 - [GitHub Project](https://github.com/users/AdrianJasieniecki/projects/5)
 - [Documentation foundation PR](https://github.com/AdrianJasieniecki/beautystock-crm/pull/1)
 - [Documentation foundation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/3)
-- [Next implementation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/7)
+- [Next implementation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/8)
 - [Roadmap](ROADMAP.md)
 - [Backlog](BACKLOG.md)
 - [Architecture decisions](DECISIONS.md)

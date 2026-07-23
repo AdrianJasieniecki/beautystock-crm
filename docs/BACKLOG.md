@@ -135,7 +135,7 @@ error handling, PostgreSQL, Flyway, testing foundations, and configuration rules
 
 | Item | Type | Priority | Status | Depends on |
 | --- | --- | --- | --- | --- |
-| Generate Spring Boot backend-api skeleton | Task | High | In progress | Epic 1 |
+| Generate Spring Boot backend-api skeleton | Task | High | Done | Epic 1 |
 | Add global exception handling contract | Task | High | Proposed | Skeleton |
 | Add API error response model | Task | High | Proposed | Skeleton |
 | Add validation dependency and example request validation | Task | High | Proposed | Error contract |
