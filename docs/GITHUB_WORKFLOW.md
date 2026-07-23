@@ -15,6 +15,24 @@
 
 Create one focused branch per Issue from an up-to-date `Production`.
 
+The project does not use a permanent `develop` branch at its current scale.
+One owner, one releasable line, and short-lived task branches do not justify the
+extra synchronization and merge path. Documentation, implementation,
+infrastructure, test, and fix branches target `Production` through Pull Requests.
+
+Keep `Production` releasable and protect it with review and required checks as
+those checks become available. Represent local, test, staging, and production
+differences through configuration and deployment environments, not long-lived
+Git branches.
+
+Reconsider a `develop` or release-branch model only when there is evidence for
+it, such as:
+
+- several contributors integrating parallel changes;
+- a release train independent from day-to-day development;
+- simultaneous supported release lines;
+- hotfixes that must bypass unreleased work.
+
 Recommended patterns:
 
 | Change | Pattern | Example |
@@ -205,4 +223,3 @@ A blocker must name:
 
 Use `blocked` only for a real stopped dependency, not for ordinary uncertainty or
 difficulty.
-
