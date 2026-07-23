@@ -1,0 +1,1 @@
+# beautystock-crm
