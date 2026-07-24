@@ -34,7 +34,7 @@ public record ApiErrorResponse(
         this.correlationId = correlationId;
         if (violations != null) {
             this.violations = List.copyOf(violations);
-        } else this.violations = null; //TODO: create unique exception in the future
+        } else this.violations = null;
     }
 
     public ApiErrorResponse(
