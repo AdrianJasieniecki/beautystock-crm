@@ -1,0 +1,57 @@
+package com.beautystock.crm.shared.api.error;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.time.Instant;
+import java.util.List;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record ApiErrorResponse(
+        Instant timestamp,
+        Long status,
+        String code,
+        String message,
+        String path,
+        String correlationId,
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        List<ApiFieldViolation> violations
+) {
+
+    public ApiErrorResponse(
+            Instant timestamp,
+            Long status,
+            String code,
+            String message,
+            String path,
+            String correlationId,
+            List<ApiFieldViolation> violations
+    ) {
+        this.timestamp = timestamp;
+        this.status = status;
+        this.code = code;
+        this.message = message;
+        this.path = path;
+        this.correlationId = correlationId;
+        if (violations != null) {
+            this.violations = List.copyOf(violations);
+        } else this.violations = null;
+    }
+
+    public ApiErrorResponse(
+            Instant timestamp,
+            Long status,
+            String code,
+            String message,
+            String path
+    ) {
+        this(
+                timestamp,
+                status,
+                code,
+                message,
+                path,
+                null,
+                null
+        );
+    }
+}
