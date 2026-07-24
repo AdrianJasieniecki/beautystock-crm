@@ -9,10 +9,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -189,5 +186,33 @@ class ApiErrorResponseJsonTest {
                 .doesNotContain(
                         "violations"
                 );
+    }
+
+    @Test
+    public void passingMutableListDoesNotChangeStateOfApiErrorResponseAfter() {
+        ApiFieldViolation apiFieldViolation = new ApiFieldViolation(
+                "email",
+                "INVALID_EMAIL",
+                "Email address has an invalid format"
+        );
+        List<ApiFieldViolation> violations = new ArrayList<>();
+        violations.add(apiFieldViolation);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse(
+                Instant.parse("2026-07-24T10:30:00Z"),
+                400L,
+                "VALIDATION_ERROR",
+                "Request validation failed",
+                "/api/customers",
+                UUID.randomUUID().toString(),
+                violations
+        );
+        assertThat(apiErrorResponse.violations().size()).isEqualTo(1);
+        ApiFieldViolation apiFieldViolation2 = new ApiFieldViolation(
+                "email",
+                "INVALID_EMAIL",
+                "Email address has an invalid format"
+        );
+        violations.add(apiFieldViolation2);
+        assertThat(apiErrorResponse.violations().size()).isEqualTo(1);
     }
 }
