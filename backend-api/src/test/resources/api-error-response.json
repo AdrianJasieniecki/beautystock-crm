@@ -4,7 +4,7 @@
   "code": "VALIDATION_ERROR",
   "message": "Request validation failed",
   "path": "/api/customers",
-  "correlationId": 123456789,
+  "correlationId": "d541492a-5315-4be8-bc4b-8c6b07bfc3c7",
   "violations": [
     {
       "field": "email",

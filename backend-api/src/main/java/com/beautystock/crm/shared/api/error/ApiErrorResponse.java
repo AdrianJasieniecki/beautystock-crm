@@ -6,14 +6,15 @@ import java.time.Instant;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record ApiErrorResponse<T>(
+public record ApiErrorResponse(
         Instant timestamp,
         Long status,
         String code,
         String message,
         String path,
-        Long correlationId,
-        List<ApiFieldViolation<T>> violations
+        String correlationId,
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        List<ApiFieldViolation> violations
 ) {
     public ApiErrorResponse(
             Instant timestamp,
