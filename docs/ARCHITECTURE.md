@@ -284,6 +284,8 @@ speculatively to every column.
 - JSON REST under `/api/v1`.
 - Request and response DTOs are separate from entities.
 - Validation errors and business errors use one error contract.
+- The shared immutable `ApiErrorResponse` and `ApiFieldViolation` transport types
+  are implemented; global exception-to-response mapping remains planned.
 - Pagination is mandatory for potentially unbounded collections.
 - Filters are explicit query parameters.
 - Timestamps use ISO 8601 and UTC in transport/storage unless a requirement says

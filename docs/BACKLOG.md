@@ -92,9 +92,17 @@ GitHub workflow needed for small manual implementation increments.
 
 | Item | Type | Priority | Status | Depends on |
 | --- | --- | --- | --- | --- |
-| Create documentation foundation | Task | High | In review | None |
-| Define GitHub workflow and review checklist | Task | High | In progress | None |
-| Prepare initial architecture decision records | Task | High | In progress | None |
+| Create documentation foundation | Task | High | Done | None |
+| Define GitHub workflow and review checklist | Task | High | Proposed | None |
+| Prepare initial architecture decision records | Task | High | Proposed | None |
+
+GitHub status audit on 2026-07-25:
+
+- Issue #3 is closed and `Done`;
+- Issues #4 and #5 remain `Proposed`, although their documented acceptance
+  criteria are satisfied;
+- Epic #2 also satisfies its acceptance criteria and Definition of Done;
+- #4, #5, and then #2 can be closed after the owner's explicit decision.
 
 **Acceptance criteria:**
 
@@ -136,10 +144,14 @@ error handling, PostgreSQL, Flyway, testing foundations, and configuration rules
 | Item | Type | Priority | Status | Depends on |
 | --- | --- | --- | --- | --- |
 | Generate Spring Boot backend-api skeleton | Task | High | Done | Epic 1 |
-| Add API error response model | Task | High | Ready | Skeleton |
+| Add API error response model | Task | High | Done | Skeleton |
 | Add global exception handling contract | Task | High | Proposed | API error model |
 | Add validation dependency and example request validation | Task | High | Proposed | Global handler and API error model |
 | Add PostgreSQL and Flyway configuration | Task | High | Proposed | Skeleton |
+
+The API error model dependency is complete. Global exception handling is the next
+recommended task and can move to `Ready` after its implementation brief is
+reviewed.
 
 **Acceptance criteria:**
 

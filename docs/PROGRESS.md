@@ -1,15 +1,15 @@
 # Progress
 
-Last updated: 2026-07-24
+Last updated: 2026-07-25
 
 ## Current phase
 
 **Phase 1 — Backend API foundation**
 
-The documentation and GitHub delivery foundation are published. The first
-owner-implemented task, `[Task] Generate Spring Boot backend-api skeleton` (#7),
-has been merged and closed. The next selected task,
-`[Task] Add API error response model` (#9), is `Ready`.
+The documentation and GitHub delivery foundation, the runnable `backend-api`
+skeleton, and the shared API error response model are published. Issues #7 and
+#9 are complete. The next recommended implementation task is
+`[Task] Add global exception handling contract` (#8).
 
 ## Completed
 
@@ -43,23 +43,36 @@ has been merged and closed. The next selected task,
 - Closed
   [Issue #7](https://github.com/AdrianJasieniecki/beautystock-crm/issues/7)
   through the PR's `Closes #7` reference and moved its project item to `Done`.
+- Implemented immutable `ApiErrorResponse` and `ApiFieldViolation` records with
+  deliberate optional-field serialization and a defensive copy of validation
+  violations.
+- Verified the API error JSON contract with a focused `@JsonTest`, including the
+  exact public schema, numeric status, UTC timestamp, optional fields, and list
+  immutability.
+- Verified `./mvnw clean verify` on Java 21 with 8 tests and no failures.
+- Merged the API error response model through
+  [PR #75](https://github.com/AdrianJasieniecki/beautystock-crm/pull/75).
+- Closed
+  [Issue #9](https://github.com/AdrianJasieniecki/beautystock-crm/issues/9)
+  through the PR's `Closes #9` reference and moved its project item to `Done`.
 
 ## In progress
 
 - No application implementation task is in progress.
-- Issue #9 has a reviewed implementation brief and is `Ready` in the GitHub
-  Project.
-- Issue #8 remains `Proposed` and now explicitly depends on the error response
-  model from #9.
+- Issue #8 remains `Proposed` in the GitHub Project. Its dependency on #9 is
+  resolved, so it is the next candidate for refinement and movement to `Ready`.
 - Issue #10 remains `Proposed` and depends on both the response model and global
   exception handling.
+- Issues #2, #4, and #5 remain open and `Proposed`, but a 2026-07-25 audit found
+  their acceptance criteria satisfied. They await the owner's explicit closure
+  decision.
 
 ## Next step
 
-The repository owner creates `feature/api-error-model` from current `Production`
-and manually implements
-`[Task] Add API error response model` (#9) using the Issue brief. Move #9 to
-`In progress` when implementation begins.
+Review the implementation brief for
+`[Task] Add global exception handling contract` (#8), move it to `Ready`, and
+then let the repository owner create `feature/api-exception-handling` from
+current `Production` when implementation begins.
 
 ## Open risks and decisions
 
@@ -82,7 +95,7 @@ and manually implements
 - [GitHub Project](https://github.com/users/AdrianJasieniecki/projects/5)
 - [Documentation foundation PR](https://github.com/AdrianJasieniecki/beautystock-crm/pull/1)
 - [Documentation foundation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/3)
-- [Next implementation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/9)
+- [Next implementation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/8)
 - [Roadmap](ROADMAP.md)
 - [Backlog](BACKLOG.md)
 - [Architecture decisions](DECISIONS.md)

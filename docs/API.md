@@ -2,9 +2,11 @@
 
 ## 1. Status
 
-This is a design plan, not an implemented API specification. Endpoint details may
-change during Issue refinement. Every implemented endpoint must update this file
-or a future generated OpenAPI source of truth.
+This is primarily a design plan, not a complete implemented API specification.
+The shared error response DTO contract in section 5 is implemented and tested;
+resource endpoints and their global exception mapping remain planned. Endpoint
+details may change during Issue refinement. Every implemented endpoint must
+update this file or a future generated OpenAPI source of truth.
 
 ## 2. General conventions
 
@@ -122,25 +124,53 @@ the convention.
 
 ## 5. Error response
 
-Proposed contract:
+The shared DTO contract is implemented by `ApiErrorResponse` and
+`ApiFieldViolation` in
+`backend-api/src/main/java/com/beautystock/crm/shared/api/error`. PR #75 verified
+the contract through focused JSON tests. The global `@RestControllerAdvice` that
+will produce these responses is planned in Issue #8.
+
+Verified complete-response example:
 
 ```json
 {
-  "timestamp": "2026-07-23T12:34:56.789Z",
+  "timestamp": "2026-07-24T10:30:00Z",
   "status": 400,
-  "code": "VALIDATION_FAILED",
-  "message": "Request validation failed.",
-  "path": "/api/v1/salons",
-  "correlationId": "7bc9e4e1-8d86-4f76-91cc-0a8ef53a22a6",
+  "code": "VALIDATION_ERROR",
+  "message": "Request validation failed",
+  "path": "/api/customers",
+  "correlationId": "d541492a-5315-4be8-bc4b-8c6b07bfc3c7",
   "violations": [
     {
       "field": "email",
-      "code": "Email",
-      "message": "must be a well-formed email address"
+      "code": "INVALID_EMAIL",
+      "message": "Email address has an invalid format"
+    },
+    {
+      "field": "name",
+      "code": "FIELD_REQUIRED",
+      "message": "Name is required"
     }
   ]
 }
 ```
+
+The values above mirror the serialization fixture; the example path does not
+claim that a `/api/customers` endpoint is implemented. Field names, JSON types,
+and optional-field behaviour are the stable part of this contract.
+
+| Field | JSON type | Required | Rule |
+| --- | --- | --- | --- |
+| `timestamp` | string | yes | ISO 8601 UTC instant |
+| `status` | number | yes | Numeric HTTP status |
+| `code` | string | yes | Stable machine-readable code |
+| `message` | string | yes | Safe client-facing message |
+| `path` | string | yes | Request path |
+| `correlationId` | string | no | Omitted when unavailable |
+| `violations` | array | no | Omitted when `null` or empty |
+
+Each `violations` entry contains exactly three string properties: `field`,
+`code`, and `message`.
 
 Rules:
 
@@ -154,7 +184,11 @@ Rules:
 - rejected values are omitted by default because they may contain secrets or
   personal data;
 - log details use the correlation ID;
-- constraint violations are translated carefully without exposing SQL.
+- constraint violations are translated carefully without exposing SQL;
+- a caller-provided violations list is defensively copied, so the response does
+  not change when the source collection is later mutated;
+- no controller or exception handler uses this contract until Issue #8 is
+  implemented.
 
 ## 6. DTO rules
 

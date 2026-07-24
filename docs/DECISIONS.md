@@ -296,8 +296,9 @@ as an advanced follow-up.
 
 ## ADR-013 — Use one consistent API error contract
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-23
+- **Accepted:** 2026-07-25 after Issue #9 and PR #75
 
 ### Context
 
@@ -307,15 +308,20 @@ failures should be predictable for frontend and API clients.
 ### Decision
 
 Define one JSON error contract with a stable machine-readable code, human-readable
-message, HTTP status, timestamp, request path, correlation identifier, and
-optional field violations. Map errors through `@RestControllerAdvice`.
+message, numeric HTTP status, UTC timestamp, request path, optional string
+correlation identifier, and optional field violations. Use immutable shared API
+DTO records and omit absent optional properties. Map errors through
+`@RestControllerAdvice` in the follow-up Issue #8.
 
 ### Consequences
 
 - controllers remain focused on HTTP success paths;
 - exception-to-status mapping must be maintained deliberately;
 - internal stack traces and sensitive data must not appear in responses;
-- the exact field names are finalized in the Backend API foundation Issue.
+- the exact field names and optional-field behaviour are finalized and protected
+  by focused JSON tests;
+- the handler's initial error-code catalogue must remain compatible with this
+  transport contract.
 
 ## ADR-014 — Store time in UTC and expose ISO 8601
 
