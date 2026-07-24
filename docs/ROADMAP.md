@@ -14,6 +14,8 @@
 
 ### Phase 0 — Foundation and documentation
 
+**Status:** Complete.
+
 **Goal:** establish project boundaries, working agreements, architecture, API
 conventions, backlog, and review criteria.
 
@@ -31,6 +33,10 @@ Exit criteria:
 - no application code was generated as part of this phase.
 
 ### Phase 1 — Backend API foundation
+
+**Status:** In progress. The Java 21/Spring Boot skeleton and shared API error
+response model are complete; global exception handling is the next recommended
+increment.
 
 **Goal:** create a minimal, maintainable Spring Boot service ready for feature
 development.
@@ -392,4 +398,3 @@ Stretch goals must not block completion of the core portfolio path.
 - GitHub Issues hold executable acceptance criteria and discussion.
 - Architecture changes are captured in `docs/DECISIONS.md`.
 - The owner approves merges, Issue closure, and roadmap scope changes.
-

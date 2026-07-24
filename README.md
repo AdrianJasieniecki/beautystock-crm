@@ -121,7 +121,8 @@ another module's repositories.
 ## Local development
 
 The minimal `backend-api` skeleton can already be built, tested, and started.
-It currently has no business endpoints, database connection, or messaging
+It includes the shared API error response DTOs, but still has no business
+endpoints, global exception handler, database connection, or messaging
 integration.
 
 Prerequisite: JDK 21.
@@ -146,12 +147,16 @@ respective Issues. See [Local development](docs/LOCAL_DEVELOPMENT.md).
   and completed Issue #7.
 - The Java 21 build, context test, local-profile startup, and HTTP response from
   the running application have been verified.
+- The shared immutable API error response model was implemented and verified in
+  [PR #75](https://github.com/AdrianJasieniecki/beautystock-crm/pull/75),
+  completing
+  [Issue #9](https://github.com/AdrianJasieniecki/beautystock-crm/issues/9).
 - Business endpoints, persistence, messaging, containers, and the frontend have
   not been implemented yet.
-- The next selected task is
-  [Issue #9 — API error response model](https://github.com/AdrianJasieniecki/beautystock-crm/issues/9),
-  currently `Ready`. It establishes the JSON contract required by global
-  exception handling (#8) and validation mapping (#10).
+- The next recommended task is
+  [Issue #8 — global exception handling](https://github.com/AdrianJasieniecki/beautystock-crm/issues/8).
+  Its dependency on the API error model is resolved; completing it will unblock
+  validation mapping in Issue #10.
 
 See [Progress](docs/PROGRESS.md) for the current source of truth.
 
