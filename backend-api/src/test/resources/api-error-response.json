@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-07-24T10:30:00Z",
+  "status": 400,
+  "code": "VALIDATION_ERROR",
+  "message": "Request validation failed",
+  "path": "/api/customers",
+  "correlationId": 123456789,
+  "violations": [
+    {
+      "field": "email",
+      "code": "INVALID_EMAIL",
+      "message": "Email address has an invalid format"
+    },
+    {
+      "field": "name",
+      "code": "FIELD_REQUIRED",
+      "message": "Name is required"
+    }
+  ]
+}

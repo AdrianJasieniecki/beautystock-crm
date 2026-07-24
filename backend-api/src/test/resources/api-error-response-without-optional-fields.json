@@ -1,0 +1,7 @@
+{
+  "timestamp": "2026-07-24T10:30:00Z",
+  "status": 400,
+  "code": "VALIDATION_ERROR",
+  "message": "Request validation failed",
+  "path": "/api/customers"
+}
