@@ -86,7 +86,7 @@ class ApiErrorResponseJsonTest {
     }
 
     @Test
-    public void shouldSerializeWithExactPropertyNames() {
+    public void shouldSerializeWithExpectedJsonContract() {
         ApiFieldViolation apiFieldViolation = new ApiFieldViolation(
                 "email",
                 "INVALID_EMAIL",
@@ -104,8 +104,7 @@ class ApiErrorResponseJsonTest {
         JsonNode root = objectMapper.readTree(
                 objectMapper.writeValueAsString(apiErrorResponse)
         );
-        Set<String> actualPropertyNames = new HashSet<>(root.propertyNames());
-        assertThat(actualPropertyNames)
+        assertThat(new HashSet<>(root.propertyNames()))
                 .containsExactlyInAnyOrder(
                         "timestamp",
                         "status",
@@ -115,6 +114,23 @@ class ApiErrorResponseJsonTest {
                         "correlationId",
                         "violations"
                 );
+        JsonNode status = root.get("status");
+        assertThat(status.isIntegralNumber()).isTrue();
+        assertThat(status.longValue()).isEqualTo(400L);
+        JsonNode violations = root.get("violations");
+        assertThat(violations.isArray()).isTrue();
+        assertThat(violations).hasSize(1);
+        JsonNode violation = violations.get(0);
+        assertThat(new HashSet<>(violation.propertyNames()))
+                .containsExactlyInAnyOrder(
+                        "field",
+                        "code",
+                        "message"
+                );
+        assertThat(violation.get("field").stringValue()).isEqualTo("email");
+        assertThat(violation.get("code").stringValue()).isEqualTo("INVALID_EMAIL");
+        assertThat(violation.get("message").stringValue())
+                .isEqualTo("Email address has an invalid format");
     }
 
     @Test

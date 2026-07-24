@@ -16,6 +16,27 @@ public record ApiErrorResponse(
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
         List<ApiFieldViolation> violations
 ) {
+
+    public ApiErrorResponse(
+            Instant timestamp,
+            Long status,
+            String code,
+            String message,
+            String path,
+            String correlationId,
+            List<ApiFieldViolation> violations
+    ) {
+        this.timestamp = timestamp;
+        this.status = status;
+        this.code = code;
+        this.message = message;
+        this.path = path;
+        this.correlationId = correlationId;
+        if (violations != null) {
+            this.violations = List.copyOf(violations);
+        } else this.violations = null; //TODO: create unique exception in the future
+    }
+
     public ApiErrorResponse(
             Instant timestamp,
             Long status,
