@@ -153,10 +153,10 @@ respective Issues. See [Local development](docs/LOCAL_DEVELOPMENT.md).
   [Issue #9](https://github.com/AdrianJasieniecki/beautystock-crm/issues/9).
 - Business endpoints, persistence, messaging, containers, and the frontend have
   not been implemented yet.
-- The next recommended task is
+- The next selected task is
   [Issue #8 — global exception handling](https://github.com/AdrianJasieniecki/beautystock-crm/issues/8).
-  Its dependency on the API error model is resolved; completing it will unblock
-  validation mapping in Issue #10.
+  It is `Ready`; its dependency on the API error model is resolved, and
+  completing it will unblock validation mapping in Issue #10.
 
 See [Progress](docs/PROGRESS.md) for the current source of truth.
 

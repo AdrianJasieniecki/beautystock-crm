@@ -55,24 +55,26 @@ skeleton, and the shared API error response model are published. Issues #7 and
 - Closed
   [Issue #9](https://github.com/AdrianJasieniecki/beautystock-crm/issues/9)
   through the PR's `Closes #9` reference and moved its project item to `Done`.
+- Closed foundation Issues
+  [#4](https://github.com/AdrianJasieniecki/beautystock-crm/issues/4),
+  [#5](https://github.com/AdrianJasieniecki/beautystock-crm/issues/5), and
+  [#2](https://github.com/AdrianJasieniecki/beautystock-crm/issues/2) after
+  confirming their acceptance criteria and moved their project items to `Done`.
 
 ## In progress
 
 - No application implementation task is in progress.
-- Issue #8 remains `Proposed` in the GitHub Project. Its dependency on #9 is
-  resolved, so it is the next candidate for refinement and movement to `Ready`.
+- Issue #8 has a reviewed implementation brief and is `Ready` in the GitHub
+  Project.
 - Issue #10 remains `Proposed` and depends on both the response model and global
   exception handling.
-- Issues #2, #4, and #5 remain open and `Proposed`, but a 2026-07-25 audit found
-  their acceptance criteria satisfied. They await the owner's explicit closure
-  decision.
 
 ## Next step
 
-Review the implementation brief for
-`[Task] Add global exception handling contract` (#8), move it to `Ready`, and
-then let the repository owner create `feature/api-exception-handling` from
-current `Production` when implementation begins.
+The repository owner creates `feature/api-exception-handling` from current
+`Production` and manually implements
+`[Task] Add global exception handling contract` (#8) using the reviewed Issue
+brief. Move #8 to `In progress` when implementation begins.
 
 ## Open risks and decisions
 
