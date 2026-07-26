@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = GlobalApiExceptionHandlerWebMvcTest.TestController.class)
 @Import({GlobalApiExceptionHandler.class,
@@ -34,7 +33,7 @@ class GlobalApiExceptionHandlerWebMvcTest {
                                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.code").value("MALFORMED_JSON"))
+                .andExpect(jsonPath("$.code").value("MALFORMED_REQUEST"))
                 .andExpect(jsonPath("$.message")
                         .value("Request body contains malformed or unreadable JSON"))
                 .andExpect(jsonPath("$.path").value("/test"))
@@ -57,7 +56,7 @@ class GlobalApiExceptionHandlerWebMvcTest {
         mockMvc.perform(get("/test/resourceConflict"))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status").value(409))
-                .andExpect(jsonPath("$.code").value("RESOURCE_CONFLICT"))
+                .andExpect(jsonPath("$.code").value("CONFLICT"))
                 .andExpect(jsonPath("$.message").value("Resource conflict occurred"))
                 .andExpect(jsonPath("$.path").value("/test/resourceConflict"))
                 .andExpect(jsonPath("$.timestamp").exists());
@@ -68,7 +67,7 @@ class GlobalApiExceptionHandlerWebMvcTest {
         mockMvc.perform(get("/test/illegalState"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.status").value(500))
-                .andExpect(jsonPath("$.code").value("INTERNAL_SERVER_ERROR"))
+                .andExpect(jsonPath("$.code").value("INTERNAL_ERROR"))
                 .andExpect(jsonPath("$.message").value("An unexpected error occurred"))
                 .andExpect(jsonPath("$.path").value("/test/illegalState"))
                 .andExpect(jsonPath("$.timestamp").exists());
@@ -77,7 +76,28 @@ class GlobalApiExceptionHandlerWebMvcTest {
     @Test
     void shouldReturnMethodNotAllowed() throws Exception {
         mockMvc.perform(post("/test/illegalState"))
-                .andExpect(status().isMethodNotAllowed());
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(header().stringValues("Allow", "GET"))
+                .andExpect(header().stringValues("Content-Type", "application/json"));
+    }
+
+    @Test
+    void nonExistentURLReturns404() throws Exception{
+        mockMvc.perform(get("/non/Existent"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
+                .andExpect(jsonPath("$.path").value("/non/Existent"))
+                .andExpect(jsonPath("$.timestamp").exists());
+    }
+
+    @Test
+    void badBodyTypeThrowsUnsupportedMediaType() throws Exception{
+        String xmlPayload = "<user><name>John</name></user>";
+        mockMvc.perform(post("/test")
+                .contentType(MediaType.APPLICATION_XML)
+                        .content(xmlPayload))
+                .andExpect(status().isUnsupportedMediaType());
     }
 
     @RestController
@@ -91,17 +111,17 @@ class GlobalApiExceptionHandlerWebMvcTest {
 
         @GetMapping("/notFound")
         void getThrowsResourceNotFound() {
-            throw new ResourceNotFoundException("No resource found");
+            throw new ResourceNotFoundException("Requested resource could not be found");
         }
 
         @GetMapping("/resourceConflict")
         void getThrowsResourceConflict() {
-            throw new ResourceConflictException("Resource conflict");
+            throw new ResourceConflictException("Resource conflict occurred");
         }
 
         @GetMapping("/illegalState")
         void getThrowsIllegalState() {
-            throw new IllegalStateException("Illegal state");
+            throw new IllegalStateException("An unexpected error occurred");
         }
     }
 

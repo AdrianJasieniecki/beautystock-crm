@@ -2,6 +2,7 @@ package com.beautystock.crm.shared.api.error;
 
 import com.beautystock.crm.shared.application.exception.ResourceConflictException;
 import com.beautystock.crm.shared.application.exception.ResourceNotFoundException;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -12,30 +13,27 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 
 @RestControllerAdvice
 public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final String MALFORMED_JSON_CODE = "MALFORMED_JSON";
+    private static final String MALFORMED_JSON_CODE = "MALFORMED_REQUEST";
     private static final String MALFORMED_JSON_MESSAGE =
             "Request body contains malformed or unreadable JSON";
 
     private static final String INTERNAL_SERVER_ERROR_CODE =
-            "INTERNAL_SERVER_ERROR";
+            "INTERNAL_ERROR";
     private static final String INTERNAL_SERVER_ERROR_MESSAGE =
             "An unexpected error occurred";
 
     private static final String RESOURCE_NOT_FOUND_ERROR_CODE =
             "RESOURCE_NOT_FOUND";
-    private static final String RESOURCE_NOT_FOUND_ERROR_MESSAGE =
-            "Requested resource could not be found";
 
     private static final String RESOURCE_CONFLICT_ERROR_CODE =
-            "RESOURCE_CONFLICT";
-    private static final String RESOURCE_CONFLICT_ERROR_MESSAGE =
-            "Resource conflict occurred";
+            "CONFLICT";
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
@@ -80,6 +78,28 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
+    @Override
+    protected @Nullable ResponseEntity<Object> handleNoResourceFoundException(
+            NoResourceFoundException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
+        ApiErrorResponse response = createErrorResponse(
+                HttpStatus.NOT_FOUND,
+                RESOURCE_NOT_FOUND_ERROR_CODE,
+                ex.getMessage(),
+                request
+        );
+
+        return handleExceptionInternal(
+                ex,
+                response,
+                headers,
+                HttpStatus.NOT_FOUND,
+                request
+        );
+    }
+
     @ExceptionHandler(ResourceConflictException.class)
     public ResponseEntity<Object> handleResourceConflictException(
             Exception exception,
@@ -90,7 +110,7 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
         ApiErrorResponse response = createErrorResponse(
                 status,
                 RESOURCE_CONFLICT_ERROR_CODE,
-                RESOURCE_CONFLICT_ERROR_MESSAGE,
+                exception.getMessage(),
                 request
         );
 
@@ -111,7 +131,7 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
         ApiErrorResponse response = createErrorResponse(
                 status,
                 RESOURCE_NOT_FOUND_ERROR_CODE,
-                RESOURCE_NOT_FOUND_ERROR_MESSAGE,
+                exception.getMessage(),
                 request
         );
 
@@ -127,15 +147,14 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
             Exception exception,
             WebRequest request
     ) {
+        logger.error("Unexpected error occurred: " + exception.getMessage());
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-
         ApiErrorResponse response = createErrorResponse(
                 status,
                 INTERNAL_SERVER_ERROR_CODE,
                 INTERNAL_SERVER_ERROR_MESSAGE,
                 request
         );
-
         return new ResponseEntity<>(
                 response,
                 HttpHeaders.EMPTY,
