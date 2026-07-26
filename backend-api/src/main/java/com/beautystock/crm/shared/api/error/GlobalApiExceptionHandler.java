@@ -85,7 +85,7 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
             Exception exception,
             WebRequest request
     ) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = HttpStatus.CONFLICT;
 
         ApiErrorResponse response = createErrorResponse(
                 status,
@@ -101,12 +101,12 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
+    @ExceptionHandler({ResourceNotFoundException.class})
     public ResponseEntity<Object> handleResourceNotFoundException(
             Exception exception,
             WebRequest request
     ) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = HttpStatus.NOT_FOUND;
 
         ApiErrorResponse response = createErrorResponse(
                 status,
