@@ -31,6 +31,8 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final String RESOURCE_NOT_FOUND_ERROR_CODE =
             "RESOURCE_NOT_FOUND";
+    private static final String RESOURCE_NOT_FOUND_MESSAGE =
+            "Requested resource could not be found";
 
     private static final String RESOURCE_CONFLICT_ERROR_CODE =
             "CONFLICT";
@@ -43,16 +45,26 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatusCode status,
             WebRequest request
     ) {
-        Object responseBody = body instanceof ApiErrorResponse
-                ? body
-                : createErrorResponse(
-                status,
-                defaultCode(status),
-                defaultMessage(status),
-                request
-        );
-
-        return new ResponseEntity<>(responseBody, headers, status);
+        if (status.is5xxServerError()) {
+            logUnexpectedException(exception, request);
+            ApiErrorResponse responseBody = createErrorResponse(
+                    status,
+                    INTERNAL_SERVER_ERROR_CODE,
+                    INTERNAL_SERVER_ERROR_MESSAGE,
+                    request
+            );
+            return new ResponseEntity<>(responseBody, headers, status);
+        } else if (body instanceof ApiErrorResponse) {
+            return new ResponseEntity<>(body, headers, status);
+        } else {
+            ApiErrorResponse responseBody = createErrorResponse(
+                    status,
+                    defaultCode(status),
+                    defaultMessage(status),
+                    request
+            );
+            return new ResponseEntity<>(responseBody, headers, status);
+        }
     }
 
     @Override
@@ -85,9 +97,9 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatusCode status,
             WebRequest request) {
         ApiErrorResponse response = createErrorResponse(
-                HttpStatus.NOT_FOUND,
+                status,
                 RESOURCE_NOT_FOUND_ERROR_CODE,
-                ex.getMessage(),
+                RESOURCE_NOT_FOUND_MESSAGE,
                 request
         );
 
@@ -95,14 +107,14 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
                 ex,
                 response,
                 headers,
-                HttpStatus.NOT_FOUND,
+                status,
                 request
         );
     }
 
     @ExceptionHandler(ResourceConflictException.class)
     public ResponseEntity<Object> handleResourceConflictException(
-            Exception exception,
+            ResourceConflictException exception,
             WebRequest request
     ) {
         HttpStatus status = HttpStatus.CONFLICT;
@@ -121,9 +133,9 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
-    @ExceptionHandler({ResourceNotFoundException.class})
+    @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Object> handleResourceNotFoundException(
-            Exception exception,
+            ResourceNotFoundException exception,
             WebRequest request
     ) {
         HttpStatus status = HttpStatus.NOT_FOUND;
@@ -147,7 +159,6 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
             Exception exception,
             WebRequest request
     ) {
-        logger.error("Unexpected error occurred: " + exception.getMessage());
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ApiErrorResponse response = createErrorResponse(
                 status,
@@ -201,5 +212,9 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
         }
 
         return "";
+    }
+
+    private void logUnexpectedException(Exception exception, WebRequest request) {
+        logger.error("Unexpected exception for request path " + requestPath(request), exception);
     }
 }
