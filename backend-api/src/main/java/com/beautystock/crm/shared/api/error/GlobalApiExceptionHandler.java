@@ -20,11 +20,11 @@ import java.time.Instant;
 @RestControllerAdvice
 public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final String MALFORMED_JSON_CODE = "MALFORMED_REQUEST";
+    private static final String MALFORMED_REQUEST_CODE = "MALFORMED_REQUEST";
     private static final String MALFORMED_JSON_MESSAGE =
             "Request body contains malformed or unreadable JSON";
 
-    private static final String INTERNAL_SERVER_ERROR_CODE =
+    private static final String INTERNAL_ERROR_CODE =
             "INTERNAL_ERROR";
     private static final String INTERNAL_SERVER_ERROR_MESSAGE =
             "An unexpected error occurred";
@@ -49,7 +49,7 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
             logUnexpectedException(exception, request);
             ApiErrorResponse responseBody = createErrorResponse(
                     status,
-                    INTERNAL_SERVER_ERROR_CODE,
+                    INTERNAL_ERROR_CODE,
                     INTERNAL_SERVER_ERROR_MESSAGE,
                     request
             );
@@ -76,7 +76,7 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         ApiErrorResponse response = createErrorResponse(
                 status,
-                MALFORMED_JSON_CODE,
+                MALFORMED_REQUEST_CODE,
                 MALFORMED_JSON_MESSAGE,
                 request
         );
@@ -160,17 +160,7 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
             WebRequest request
     ) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        ApiErrorResponse response = createErrorResponse(
-                status,
-                INTERNAL_SERVER_ERROR_CODE,
-                INTERNAL_SERVER_ERROR_MESSAGE,
-                request
-        );
-        return new ResponseEntity<>(
-                response,
-                HttpHeaders.EMPTY,
-                status
-        );
+        return handleExceptionInternal(exception, null, HttpHeaders.EMPTY, status, request);
     }
 
     private ApiErrorResponse createErrorResponse(

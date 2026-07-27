@@ -15,7 +15,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.bind.annotation.*;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+
+import java.time.Instant;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -27,9 +32,11 @@ import static org.assertj.core.api.Assertions.assertThat;
         GlobalApiExceptionHandlerWebMvcTest.TestController.class})
 class GlobalApiExceptionHandlerWebMvcTest {
 
-    private static final Logger log = LoggerFactory.getLogger(GlobalApiExceptionHandlerWebMvcTest.class);
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void shouldReturnMalformedJsonError() throws Exception {
@@ -48,7 +55,9 @@ class GlobalApiExceptionHandlerWebMvcTest {
                 .andExpect(jsonPath("$.message")
                         .value("Request body contains malformed or unreadable JSON"))
                 .andExpect(jsonPath("$.path").value("/test"))
-                .andExpect(jsonPath("$.timestamp").exists());
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.correlationId").doesNotExist())
+                .andExpect(jsonPath("$.violations").doesNotExist());
     }
 
     @Test
@@ -61,7 +70,9 @@ class GlobalApiExceptionHandlerWebMvcTest {
                 .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("Requested resource could not be found"))
                 .andExpect(jsonPath("$.path").value("/test/notFound"))
-                .andExpect(jsonPath("$.timestamp").exists());
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.correlationId").doesNotExist())
+                .andExpect(jsonPath("$.violations").doesNotExist());
     }
 
     @Test
@@ -74,12 +85,15 @@ class GlobalApiExceptionHandlerWebMvcTest {
                 .andExpect(jsonPath("$.code").value("CONFLICT"))
                 .andExpect(jsonPath("$.message").value("Resource conflict occurred"))
                 .andExpect(jsonPath("$.path").value("/test/resourceConflict"))
-                .andExpect(jsonPath("$.timestamp").exists());
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.correlationId").doesNotExist())
+                .andExpect(jsonPath("$.violations").doesNotExist());
     }
 
     @Test
-    void shouldReturnIllegalStateException() throws Exception {
-        mockMvc.perform(get("/test/illegalState"))
+    @ExtendWith(OutputCaptureExtension.class)
+    void shouldReturnIllegalStateException(CapturedOutput output) throws Exception {
+        MvcResult result = mockMvc.perform(get("/test/illegalState"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").isNumber())
@@ -88,9 +102,23 @@ class GlobalApiExceptionHandlerWebMvcTest {
                 .andExpect(jsonPath("$.message").value("An unexpected error occurred"))
                 .andExpect(jsonPath("$.path").value("/test/illegalState"))
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.exception").doesNotExist())
-                .andExpect(jsonPath("$.stackTrace").doesNotExist())
-                .andExpect(jsonPath("$.cause").doesNotExist());
+                .andExpect(jsonPath("$.correlationId").doesNotExist())
+                .andExpect(jsonPath("$.violations").doesNotExist())
+                .andExpect(content().string(Matchers.not(Matchers.containsString("internal-diagnostic-sentinel"))))
+                .andReturn();
+        String responseBody = result.getResponse().getContentAsString();
+        JsonNode root = objectMapper.readTree(responseBody);
+        String timestamp = root.get("timestamp").asString();
+        Instant parsedTimestamp = Instant.parse(timestamp);
+        assertThat(timestamp).endsWith("Z");
+        assertThat(parsedTimestamp).isNotNull();
+        String logs = output.getAll();
+        assertThat(logs).containsAnyOf("ERROR");
+        assertThat(logs).containsAnyOf("internal-diagnostic-sentinel");
+        assertThat(logs).containsAnyOf("/test/illegalState");
+        assertThat(logs).containsAnyOf("GlobalApiExceptionHandler");
+        assertThat(logs).containsAnyOf("IllegalStateException");
+        assertThat(logs).containsOnlyOnce("Unexpected exception for request path /test/illegalState");
     }
 
     @Test
@@ -108,9 +136,7 @@ class GlobalApiExceptionHandlerWebMvcTest {
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.timestamp").value(Matchers.matchesRegex("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z$")))
                 .andExpect(jsonPath("$.correlationId").doesNotExist())
-                .andExpect(jsonPath("$.violations").doesNotExist())
-                .andExpect(content().string(Matchers.not(Matchers.containsString("internal-diagnostic-sentinel"))))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("IllegalStateException"))));
+                .andExpect(jsonPath("$.violations").doesNotExist());
     }
 
     @Test
@@ -132,7 +158,7 @@ class GlobalApiExceptionHandlerWebMvcTest {
     @Test
     void badBodyTypeThrowsUnsupportedMediaType() throws Exception{
         String xmlPayload = "<user><name>John</name></user>";
-        mockMvc.perform(post("/test")
+        MvcResult result = mockMvc.perform(post("/test")
                 .contentType(MediaType.APPLICATION_XML)
                         .content(xmlPayload))
                 .andExpect(status().isUnsupportedMediaType())
@@ -142,7 +168,17 @@ class GlobalApiExceptionHandlerWebMvcTest {
                 .andExpect(jsonPath("$.status").value(415))
                 .andExpect(jsonPath("$.code").value("UNSUPPORTED_MEDIA_TYPE"))
                 .andExpect(jsonPath("$.message").value("Unsupported Media Type"))
-                .andExpect(jsonPath("$.path").value("/test"));
+                .andExpect(jsonPath("$.path").value("/test"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.correlationId").doesNotExist())
+                .andExpect(jsonPath("$.violations").doesNotExist())
+                .andReturn();
+        String responseBody = result.getResponse().getContentAsString();
+        JsonNode root = objectMapper.readTree(responseBody);
+        String timestamp = root.get("timestamp").asString();
+        Instant parsedTimestamp = Instant.parse(timestamp);
+        assertThat(timestamp).endsWith("Z");
+        assertThat(parsedTimestamp).isNotNull();
     }
 
     @Test
@@ -150,18 +186,21 @@ class GlobalApiExceptionHandlerWebMvcTest {
     void builtInErrorShouldThrow500(CapturedOutput output) throws Exception {
         mockMvc.perform(post("/test/notWritable"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.status").isNumber())
                 .andExpect(jsonPath("$.status").value(500))
                 .andExpect(jsonPath("$.code").value("INTERNAL_ERROR"))
                 .andExpect(jsonPath("$.message").value("An unexpected error occurred"))
                 .andExpect(jsonPath("$.path").value("/test/notWritable"))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("internal-sentinel"))));
+                .andExpect(content().string(Matchers.not(Matchers.containsString("framework-internal-sentinel"))))
+                .andExpect(jsonPath("$.correlationId").doesNotExist())
+                .andExpect(jsonPath("$.violations").doesNotExist());
         String logs = output.getAll();
-        assertThat(logs).containsAnyOf("ERROR");
-        assertThat(logs).containsAnyOf("/test/notWritable");
-        assertThat(logs).containsAnyOf("GlobalApiExceptionHandler");
-        assertThat(logs).containsAnyOf("HttpMessageNotWritableException");
+        assertThat(logs).contains("ERROR");
+        assertThat(logs).contains("/test/notWritable");
+        assertThat(logs).contains("GlobalApiExceptionHandler");
+        assertThat(logs).contains("HttpMessageNotWritableException");
+        assertThat(logs).containsOnlyOnce("framework-internal-sentinel");
     }
 
     @RestController
