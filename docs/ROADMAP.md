@@ -34,9 +34,9 @@ Exit criteria:
 
 ### Phase 1 — Backend API foundation
 
-**Status:** In progress. The Java 21/Spring Boot skeleton and shared API error
-response model are complete; global exception handling is the next recommended
-increment.
+**Status:** In progress. The Java 21/Spring Boot skeleton, shared API error
+response model, and global exception handling are complete; Bean Validation and
+field-violation mapping are the next recommended increment.
 
 **Goal:** create a minimal, maintainable Spring Boot service ready for feature
 development.

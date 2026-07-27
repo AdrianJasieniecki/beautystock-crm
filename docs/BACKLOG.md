@@ -139,12 +139,12 @@ error handling, PostgreSQL, Flyway, testing foundations, and configuration rules
 | --- | --- | --- | --- | --- |
 | Generate Spring Boot backend-api skeleton | Task | High | Done | Epic 1 |
 | Add API error response model | Task | High | Done | Skeleton |
-| Add global exception handling contract | Task | High | Ready | API error model |
-| Add validation dependency and example request validation | Task | High | Proposed | Global handler and API error model |
+| Add global exception handling contract | Task | High | Done | API error model |
+| Add validation dependency and example request validation | Task | High | Ready | Global handler and API error model |
 | Add PostgreSQL and Flyway configuration | Task | High | Proposed | Skeleton |
 
-The API error model dependency is complete. Global exception handling has a
-reviewed implementation brief and is the next selected task.
+The API error model and global exception handling dependencies are complete.
+Bean Validation and field-violation mapping are the next selected task.
 
 **Acceptance criteria:**
 

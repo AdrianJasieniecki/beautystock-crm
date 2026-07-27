@@ -121,9 +121,9 @@ another module's repositories.
 ## Local development
 
 The minimal `backend-api` skeleton can already be built, tested, and started.
-It includes the shared API error response DTOs, but still has no business
-endpoints, global exception handler, database connection, or messaging
-integration.
+It includes the shared API error response DTOs and global Spring MVC exception
+handling, but still has no business endpoints, Bean Validation mapping, database
+connection, or messaging integration.
 
 Prerequisite: JDK 21.
 
@@ -151,12 +151,18 @@ respective Issues. See [Local development](docs/LOCAL_DEVELOPMENT.md).
   [PR #75](https://github.com/AdrianJasieniecki/beautystock-crm/pull/75),
   completing
   [Issue #9](https://github.com/AdrianJasieniecki/beautystock-crm/issues/9).
+- Global exception handling was implemented and verified in
+  [PR #78](https://github.com/AdrianJasieniecki/beautystock-crm/pull/78),
+  completing
+  [Issue #8](https://github.com/AdrianJasieniecki/beautystock-crm/issues/8).
+  It maps malformed requests, missing resources, conflicts, built-in MVC
+  failures, and unexpected exceptions to the shared safe response contract.
 - Business endpoints, persistence, messaging, containers, and the frontend have
   not been implemented yet.
 - The next selected task is
-  [Issue #8 — global exception handling](https://github.com/AdrianJasieniecki/beautystock-crm/issues/8).
-  It is `Ready`; its dependency on the API error model is resolved, and
-  completing it will unblock validation mapping in Issue #10.
+  [Issue #10 — validation foundation](https://github.com/AdrianJasieniecki/beautystock-crm/issues/10).
+  Its dependencies on the API error model and global exception handler are
+  resolved, and it is `Ready` in the GitHub Project.
 
 See [Progress](docs/PROGRESS.md) for the current source of truth.
 
