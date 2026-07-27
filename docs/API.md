@@ -3,10 +3,11 @@
 ## 1. Status
 
 This is primarily a design plan, not a complete implemented API specification.
-The shared error response DTO contract in section 5 is implemented and tested;
-resource endpoints and their global exception mapping remain planned. Endpoint
-details may change during Issue refinement. Every implemented endpoint must
-update this file or a future generated OpenAPI source of truth.
+The shared error response DTO contract and global Spring MVC exception mapping
+in section 5 are implemented and tested. Bean Validation mapping and business
+resource endpoints remain planned. Endpoint details may change during Issue
+refinement. Every implemented endpoint must update this file or a future
+generated OpenAPI source of truth.
 
 ## 2. General conventions
 
@@ -127,8 +128,26 @@ the convention.
 The shared DTO contract is implemented by `ApiErrorResponse` and
 `ApiFieldViolation` in
 `backend-api/src/main/java/com/beautystock/crm/shared/api/error`. PR #75 verified
-the contract through focused JSON tests. The global `@RestControllerAdvice` that
-will produce these responses is planned in Issue #8.
+the contract through focused JSON tests.
+
+`GlobalApiExceptionHandler` in the same package implements the global
+`@RestControllerAdvice` boundary. It extends `ResponseEntityExceptionHandler` so
+built-in Spring MVC failures retain their selected status and protocol headers
+while using `ApiErrorResponse`. Issue #8 and PR #78 verified the following
+mapping with focused MVC slice tests:
+
+| Failure | HTTP status | Stable code | Client message |
+| --- | ---: | --- | --- |
+| Malformed or unreadable JSON | `400` | `MALFORMED_REQUEST` | Fixed safe message |
+| Application resource not found | `404` | `RESOURCE_NOT_FOUND` | Explicit client-safe application message |
+| Unmapped or static resource not found | `404` | `RESOURCE_NOT_FOUND` | Fixed safe message |
+| Recognized application conflict | `409` | `CONFLICT` | Explicit client-safe application message |
+| Unexpected or built-in server failure | `500` | `INTERNAL_ERROR` | Fixed generic message |
+
+Other built-in MVC failures use a status-based code and safe reason phrase. For
+example, method-not-allowed and unsupported-media-type failures return
+`METHOD_NOT_ALLOWED` and `UNSUPPORTED_MEDIA_TYPE`. Spring-provided headers such
+as `Allow` and `Accept` are preserved.
 
 Verified complete-response example:
 
@@ -157,7 +176,9 @@ Verified complete-response example:
 
 The values above mirror the serialization fixture; the example path does not
 claim that a `/api/customers` endpoint is implemented. Field names, JSON types,
-and optional-field behaviour are the stable part of this contract.
+and optional-field behaviour are the stable part of this contract. Current
+handler responses omit `correlationId`, and validation violations remain the
+scope of Issue #10.
 
 | Field | JSON type | Required | Rule |
 | --- | --- | --- | --- |
@@ -177,18 +198,23 @@ Rules:
 - `timestamp` is an ISO 8601 UTC instant and `status` is a JSON number;
 - `code` is stable enough for client decisions;
 - `message` is safe and readable, not a stack trace;
-- `correlationId` is omitted when it is not available;
+- `correlationId` is omitted until a trusted server-side propagation mechanism
+  exists;
 - `violations` is omitted when there are no field/object validation errors;
 - each violation exposes only `field`, stable validation `code`, and safe
   `message`;
 - rejected values are omitted by default because they may contain secrets or
   personal data;
-- log details use the correlation ID;
-- constraint violations are translated carefully without exposing SQL;
+- unexpected `5xx` failures are logged once at `ERROR` with the exception and
+  request path while the public response remains generic;
+- expected `4xx` failures do not produce error-level stack traces from the
+  application handler;
+- recognized constraint violations will be translated carefully without
+  exposing rejected values or SQL;
 - a caller-provided violations list is defensively copied, so the response does
   not change when the source collection is later mutated;
-- no controller or exception handler uses this contract until Issue #8 is
-  implemented.
+- the global exception handler owns transport mapping; controllers must not
+  duplicate it with local `try/catch` translation.
 
 ## 6. DTO rules
 

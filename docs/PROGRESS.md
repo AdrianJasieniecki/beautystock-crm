@@ -1,15 +1,16 @@
 # Progress
 
-Last updated: 2026-07-25
+Last updated: 2026-07-27
 
 ## Current phase
 
 **Phase 1 — Backend API foundation**
 
 The documentation and GitHub delivery foundation, the runnable `backend-api`
-skeleton, and the shared API error response model are published. Issues #7 and
-#9 are complete. The next recommended implementation task is
-`[Task] Add global exception handling contract` (#8).
+skeleton, the shared API error response model, and global exception handling are
+published. Issues #7, #9, and #8 are complete. The next recommended
+implementation task is
+`[Task] Add validation dependency and example request validation` (#10).
 
 ## Completed
 
@@ -55,6 +56,21 @@ skeleton, and the shared API error response model are published. Issues #7 and
 - Closed
   [Issue #9](https://github.com/AdrianJasieniecki/beautystock-crm/issues/9)
   through the PR's `Closes #9` reference and moved its project item to `Done`.
+- Implemented one global `@RestControllerAdvice` based on
+  `ResponseEntityExceptionHandler`, including safe mappings for malformed JSON,
+  application and framework not-found failures, conflicts, built-in MVC
+  failures, and unexpected `5xx` failures.
+- Preserved Spring-selected statuses and important `Allow`/`Accept` headers,
+  omitted unavailable optional fields, and logged unexpected failures once with
+  the exception and request path without exposing diagnostics to clients.
+- Verified the handler with focused `@WebMvcTest` cases for `400`, `404`, `405`,
+  `409`, `415`, and `500`, plus the existing JSON contract and context tests.
+- Verified `./mvnw clean verify` on Java 21 with 16 tests and no failures.
+- Merged global exception handling through
+  [PR #78](https://github.com/AdrianJasieniecki/beautystock-crm/pull/78).
+- Closed
+  [Issue #8](https://github.com/AdrianJasieniecki/beautystock-crm/issues/8)
+  through the PR's `Closes #8` reference and moved its project item to `Done`.
 - Closed foundation Issues
   [#4](https://github.com/AdrianJasieniecki/beautystock-crm/issues/4),
   [#5](https://github.com/AdrianJasieniecki/beautystock-crm/issues/5), and
@@ -64,17 +80,18 @@ skeleton, and the shared API error response model are published. Issues #7 and
 ## In progress
 
 - No application implementation task is in progress.
-- Issue #8 has a reviewed implementation brief and is `Ready` in the GitHub
-  Project.
-- Issue #10 remains `Proposed` and depends on both the response model and global
-  exception handling.
+- Issue #10 has a reviewed implementation brief, its dependencies on the
+  response model and global exception handling are complete, and it is `Ready`
+  in the GitHub Project.
+- PostgreSQL and Flyway configuration remains proposed after the validation
+  foundation.
 
 ## Next step
 
-The repository owner creates `feature/api-exception-handling` from current
+The repository owner creates `feature/api-validation-foundation` from current
 `Production` and manually implements
-`[Task] Add global exception handling contract` (#8) using the reviewed Issue
-brief. Move #8 to `In progress` when implementation begins.
+`[Task] Add validation dependency and example request validation` (#10) using
+the reviewed Issue brief. Move #10 to `In progress` when implementation begins.
 
 ## Open risks and decisions
 
@@ -97,7 +114,7 @@ brief. Move #8 to `In progress` when implementation begins.
 - [GitHub Project](https://github.com/users/AdrianJasieniecki/projects/5)
 - [Documentation foundation PR](https://github.com/AdrianJasieniecki/beautystock-crm/pull/1)
 - [Documentation foundation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/3)
-- [Next implementation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/8)
+- [Next implementation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/10)
 - [Roadmap](ROADMAP.md)
 - [Backlog](BACKLOG.md)
 - [Architecture decisions](DECISIONS.md)

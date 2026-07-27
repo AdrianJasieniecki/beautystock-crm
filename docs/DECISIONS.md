@@ -299,6 +299,7 @@ as an advanced follow-up.
 - **Status:** Accepted
 - **Date:** 2026-07-23
 - **Accepted:** 2026-07-25 after Issue #9 and PR #75
+- **Implemented:** 2026-07-27 after Issue #8 and PR #78
 
 ### Context
 
@@ -311,7 +312,11 @@ Define one JSON error contract with a stable machine-readable code, human-readab
 message, numeric HTTP status, UTC timestamp, request path, optional string
 correlation identifier, and optional field violations. Use immutable shared API
 DTO records and omit absent optional properties. Map errors through
-`@RestControllerAdvice` in the follow-up Issue #8.
+one `@RestControllerAdvice` based on `ResponseEntityExceptionHandler`. Preserve
+Spring-selected status codes and protocol headers for built-in MVC failures.
+Return fixed safe messages for malformed/framework/unexpected failures and
+explicit client-safe messages for recognized application exceptions. Log
+unexpected `5xx` failures once with the exception and request path.
 
 ### Consequences
 
@@ -321,7 +326,11 @@ DTO records and omit absent optional properties. Map errors through
 - the exact field names and optional-field behaviour are finalized and protected
   by focused JSON tests;
 - the handler's initial error-code catalogue must remain compatible with this
-  transport contract.
+  transport contract;
+- correlation identifiers remain absent until a trusted server-side propagation
+  mechanism is introduced;
+- validation violations remain a separate follow-up so the transport boundary
+  does not grow beyond one reviewed concern at a time.
 
 ## ADR-014 — Store time in UTC and expose ISO 8601
 
