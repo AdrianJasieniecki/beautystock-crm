@@ -46,10 +46,15 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String VALIDATION_ERROR_MESSAGE = "Request validation failed";
 
     private static final String FIELD_REQUIRED_ERROR_CODE = "FIELD_REQUIRED";
+    private static final String FIELD_REQUIRED_ERROR_MESSAGE = "Field is required";
     private static final String INVALID_EMAIL_ERROR_CODE = "INVALID_EMAIL";
+    private static final String INVALID_EMAIL_ERROR_MESSAGE = "Invalid email format";
     private static final String INVALID_SIZE_ERROR_CODE = "INVALID_SIZE";
+    private static final String INVALID_SIZE_ERROR_MESSAGE = "Invalid field size";
     private static final String OUT_OF_RANGE_ERROR_CODE = "OUT_OF_RANGE";
+    private static final String OUT_OF_RANGE_ERROR_MESSAGE = "Value is out of range";
     private static final String INVALID_VALUE_ERROR_CODE = "INVALID_VALUE";
+    private static final String INVALID_VALUE_ERROR_MESSAGE = "Invalid field value";
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
@@ -91,16 +96,17 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
         for (ObjectError error : ex.getBindingResult().getAllErrors()) {
             String field;
             String code;
+            String message;
             if (error instanceof FieldError fieldError) {
                 field = fieldError.getField();
-                code = mapValidationCode(fieldError.getCode());
+                ErrorDetails details = mapValidationCode(fieldError.getCode());
+                code = details.code;
+                message = details.message;
             } else {
                 field = "_global";
                 code = "INVALID_REQUEST";
+                message = "Invalid value";
             }
-            String message = error.getDefaultMessage() != null
-                    ? error.getDefaultMessage()
-                    : "Invalid value";
             violations.add(new ApiFieldViolation(
                     field,
                     code,
@@ -278,22 +284,27 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
         return "";
     }
 
-    private String mapValidationCode(@Nullable String code) {
+    private ErrorDetails mapValidationCode(@Nullable String code) {
         if (code != null) {
             return switch (code) {
-                case "NotBlank", "NotNull", "NotEmpty" -> FIELD_REQUIRED_ERROR_CODE;
-                case "Email" -> INVALID_EMAIL_ERROR_CODE;
-                case "Size" -> INVALID_SIZE_ERROR_CODE;
+                case "NotBlank", "NotNull", "NotEmpty" -> new ErrorDetails(FIELD_REQUIRED_ERROR_CODE, FIELD_REQUIRED_ERROR_MESSAGE);
+                case "Email" -> new ErrorDetails(INVALID_EMAIL_ERROR_CODE, INVALID_EMAIL_ERROR_MESSAGE);
+                case "Size" -> new ErrorDetails(INVALID_SIZE_ERROR_CODE, INVALID_SIZE_ERROR_MESSAGE);
                 case "Min", "Max", "DecimalMin", "DecimalMax", "Positive",
-                     "PositiveOrZero", "Negative", "NegativeOrZero" -> OUT_OF_RANGE_ERROR_CODE;
-                default -> INVALID_VALUE_ERROR_CODE;
+                     "PositiveOrZero", "Negative", "NegativeOrZero" -> new ErrorDetails(OUT_OF_RANGE_ERROR_CODE, OUT_OF_RANGE_ERROR_MESSAGE);
+                default -> new ErrorDetails(INVALID_VALUE_ERROR_CODE, INVALID_VALUE_ERROR_MESSAGE);
             };
         } else {
-            throw new IllegalStateException("Error code was null during code mapping");
+            return new ErrorDetails(INVALID_VALUE_ERROR_CODE, INVALID_VALUE_ERROR_MESSAGE);
         }
     }
 
     private void logUnexpectedException(Exception exception, WebRequest request) {
         logger.error("Unexpected exception for request path " + requestPath(request), exception);
     }
+
+    private record ErrorDetails(
+            String code,
+            String message
+    ){}
 }
