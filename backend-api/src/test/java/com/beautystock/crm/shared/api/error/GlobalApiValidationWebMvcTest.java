@@ -8,8 +8,12 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.bind.annotation.*;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+
+import java.time.Instant;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
@@ -47,7 +51,7 @@ public class GlobalApiValidationWebMvcTest {
 
     @Test
     void malformedRequestThrowsValidationExceptionWhenNull() throws Exception {
-        mockMvc.perform(post("/test/create")
+        MvcResult result = mockMvc.perform(post("/test/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -59,15 +63,25 @@ public class GlobalApiValidationWebMvcTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Request validation failed"))
+                .andExpect(jsonPath("$.path").value("/test/create"))
                 .andExpect(jsonPath("$.violations").isArray())
                 .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field").value("name"))
-                .andExpect(jsonPath("$.violations[0].code").value("FIELD_REQUIRED"));
+                .andExpect(jsonPath("$.violations[0].code").value("FIELD_REQUIRED"))
+                .andExpect(jsonPath("$.correlationId").doesNotExist())
+                .andReturn();
+        String responseBody = result.getResponse().getContentAsString();
+        JsonNode root = objectMapper.readTree(responseBody);
+        String timestamp = root.get("timestamp").asString();
+        Instant parsedTimestamp = Instant.parse(timestamp);
+        assertThat(timestamp).endsWith("Z");
+        assertThat(parsedTimestamp).isNotNull();
     }
 
     @Test
     void malformedRequestThrowsValidationExceptionWhenEmptyString() throws Exception {
-        mockMvc.perform(post("/test/create")
+        MvcResult result = mockMvc.perform(post("/test/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -79,15 +93,25 @@ public class GlobalApiValidationWebMvcTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Request validation failed"))
+                .andExpect(jsonPath("$.path").value("/test/create"))
                 .andExpect(jsonPath("$.violations").isArray())
                 .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field").value("name"))
-                .andExpect(jsonPath("$.violations[0].code").value("FIELD_REQUIRED"));
+                .andExpect(jsonPath("$.violations[0].code").value("FIELD_REQUIRED"))
+                .andExpect(jsonPath("$.correlationId").doesNotExist())
+                .andReturn();
+        String responseBody = result.getResponse().getContentAsString();
+        JsonNode root = objectMapper.readTree(responseBody);
+        String timestamp = root.get("timestamp").asString();
+        Instant parsedTimestamp = Instant.parse(timestamp);
+        assertThat(timestamp).endsWith("Z");
+        assertThat(parsedTimestamp).isNotNull();
     }
 
     @Test
     void malformedRequestThrowsValidationExceptionWhenBlank() throws Exception {
-        mockMvc.perform(post("/test/create")
+        MvcResult result = mockMvc.perform(post("/test/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -99,15 +123,25 @@ public class GlobalApiValidationWebMvcTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Request validation failed"))
+                .andExpect(jsonPath("$.path").value("/test/create"))
                 .andExpect(jsonPath("$.violations").isArray())
                 .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field").value("name"))
-                .andExpect(jsonPath("$.violations[0].code").value("FIELD_REQUIRED"));
+                .andExpect(jsonPath("$.violations[0].code").value("FIELD_REQUIRED"))
+                .andExpect(jsonPath("$.correlationId").doesNotExist())
+                .andReturn();
+        String responseBody = result.getResponse().getContentAsString();
+        JsonNode root = objectMapper.readTree(responseBody);
+        String timestamp = root.get("timestamp").asString();
+        Instant parsedTimestamp = Instant.parse(timestamp);
+        assertThat(timestamp).endsWith("Z");
+        assertThat(parsedTimestamp).isNotNull();
     }
 
     @Test
     void malformedRequestThrowsValidationExceptionWhenEmailHasWrongFormat() throws Exception {
-        mockMvc.perform(post("/test/create")
+        MvcResult result = mockMvc.perform(post("/test/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -119,15 +153,25 @@ public class GlobalApiValidationWebMvcTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Request validation failed"))
+                .andExpect(jsonPath("$.path").value("/test/create"))
                 .andExpect(jsonPath("$.violations").isArray())
                 .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field").value("email"))
-                .andExpect(jsonPath("$.violations[0].code").value("INVALID_EMAIL"));
+                .andExpect(jsonPath("$.violations[0].code").value("INVALID_EMAIL"))
+                .andExpect(jsonPath("$.correlationId").doesNotExist())
+                .andReturn();
+        String responseBody = result.getResponse().getContentAsString();
+        JsonNode root = objectMapper.readTree(responseBody);
+        String timestamp = root.get("timestamp").asString();
+        Instant parsedTimestamp = Instant.parse(timestamp);
+        assertThat(timestamp).endsWith("Z");
+        assertThat(parsedTimestamp).isNotNull();
     }
 
     @Test
     void malformedRequestThrowsValidationExceptionWhenValueIsOutOfRange() throws Exception {
-        mockMvc.perform(post("/test/create")
+        MvcResult result = mockMvc.perform(post("/test/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -139,15 +183,25 @@ public class GlobalApiValidationWebMvcTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Request validation failed"))
+                .andExpect(jsonPath("$.path").value("/test/create"))
                 .andExpect(jsonPath("$.violations").isArray())
                 .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field").value("age"))
-                .andExpect(jsonPath("$.violations[0].code").value("OUT_OF_RANGE"));
+                .andExpect(jsonPath("$.violations[0].code").value("OUT_OF_RANGE"))
+                .andExpect(jsonPath("$.correlationId").doesNotExist())
+                .andReturn();
+        String responseBody = result.getResponse().getContentAsString();
+        JsonNode root = objectMapper.readTree(responseBody);
+        String timestamp = root.get("timestamp").asString();
+        Instant parsedTimestamp = Instant.parse(timestamp);
+        assertThat(timestamp).endsWith("Z");
+        assertThat(parsedTimestamp).isNotNull();
     }
 
     @Test
     void malformedRequestThrowsValidationExceptionWithMultipleFieldViolations() throws Exception {
-        mockMvc.perform(post("/test/create")
+        MvcResult result = mockMvc.perform(post("/test/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -159,12 +213,22 @@ public class GlobalApiValidationWebMvcTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("Request validation failed"))
+                .andExpect(jsonPath("$.path").value("/test/create"))
                 .andExpect(jsonPath("$.violations").isArray())
                 .andExpect(jsonPath("$.violations", hasSize(3)))
                 .andExpect(jsonPath("$.violations[*].field")
                         .value(containsInAnyOrder("name", "email", "age")))
                 .andExpect(jsonPath("$.violations[*].code")
-                        .value(containsInAnyOrder("FIELD_REQUIRED", "INVALID_EMAIL", "OUT_OF_RANGE")));
+                        .value(containsInAnyOrder("FIELD_REQUIRED", "INVALID_EMAIL", "OUT_OF_RANGE")))
+                .andExpect(jsonPath("$.correlationId").doesNotExist())
+                .andReturn();
+        String responseBody = result.getResponse().getContentAsString();
+        JsonNode root = objectMapper.readTree(responseBody);
+        String timestamp = root.get("timestamp").asString();
+        Instant parsedTimestamp = Instant.parse(timestamp);
+        assertThat(timestamp).endsWith("Z");
+        assertThat(parsedTimestamp).isNotNull();
     }
 
     @RestController

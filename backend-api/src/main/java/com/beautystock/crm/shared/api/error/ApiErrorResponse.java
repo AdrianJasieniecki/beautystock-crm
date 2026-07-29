@@ -10,21 +10,13 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiErrorResponse(
-        @NotNull
         Instant timestamp,
-        @NotNull
-        @NumberFormat
         Long status,
-        @NotNull
         String code,
-        @NotNull
         String message,
-        @NotNull
         String path,
-        @Nullable
         String correlationId,
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
-        @Nullable
         List<ApiFieldViolation> violations
 ) {
 
