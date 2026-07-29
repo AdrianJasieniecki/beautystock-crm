@@ -1,9 +1,6 @@
 package com.beautystock.crm.shared.api.error;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.format.annotation.NumberFormat;
 
 import java.time.Instant;
 import java.util.List;
