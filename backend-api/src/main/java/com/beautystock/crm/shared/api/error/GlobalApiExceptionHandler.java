@@ -8,6 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -16,6 +19,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
@@ -36,6 +41,20 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final String RESOURCE_CONFLICT_ERROR_CODE =
             "CONFLICT";
+
+    private static final String VALIDATION_ERROR_CODE = "VALIDATION_ERROR";
+    private static final String VALIDATION_ERROR_MESSAGE = "Request validation failed";
+
+    private static final String FIELD_REQUIRED_ERROR_CODE = "FIELD_REQUIRED";
+    private static final String FIELD_REQUIRED_ERROR_MESSAGE = "Field is required";
+    private static final String INVALID_EMAIL_ERROR_CODE = "INVALID_EMAIL";
+    private static final String INVALID_EMAIL_ERROR_MESSAGE = "Invalid email format";
+    private static final String INVALID_SIZE_ERROR_CODE = "INVALID_SIZE";
+    private static final String INVALID_SIZE_ERROR_MESSAGE = "Invalid field size";
+    private static final String OUT_OF_RANGE_ERROR_CODE = "OUT_OF_RANGE";
+    private static final String OUT_OF_RANGE_ERROR_MESSAGE = "Value is out of range";
+    private static final String INVALID_VALUE_ERROR_CODE = "INVALID_VALUE";
+    private static final String INVALID_VALUE_ERROR_MESSAGE = "Invalid field value";
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
@@ -65,6 +84,49 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
             );
             return new ResponseEntity<>(responseBody, headers, status);
         }
+    }
+
+    @Override
+    protected @Nullable ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
+        List<ApiFieldViolation> violations = new ArrayList<>();
+        for (ObjectError error : ex.getBindingResult().getAllErrors()) {
+            String field;
+            String code;
+            String message;
+            if (error instanceof FieldError fieldError) {
+                field = fieldError.getField();
+                ErrorDetails details = mapValidationCode(fieldError.getCode());
+                code = details.code;
+                message = details.message;
+            } else {
+                field = "_global";
+                code = "INVALID_REQUEST";
+                message = "Invalid value";
+            }
+            violations.add(new ApiFieldViolation(
+                    field,
+                    code,
+                    message
+            ));
+        }
+        ApiErrorResponse response = createErrorResponse(
+                status,
+                VALIDATION_ERROR_CODE,
+                VALIDATION_ERROR_MESSAGE,
+                request,
+                violations
+        );
+        return handleExceptionInternal(
+                ex,
+                response,
+                headers,
+                status,
+                request
+        );
     }
 
     @Override
@@ -180,6 +242,24 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
+    private ApiErrorResponse createErrorResponse(
+            HttpStatusCode status,
+            String code,
+            String message,
+            WebRequest request,
+            List<ApiFieldViolation> violations
+    ) {
+        return new ApiErrorResponse(
+                Instant.now(),
+                (long) status.value(),
+                code,
+                message,
+                requestPath(request),
+                null,
+                violations
+        );
+    }
+
     private String defaultCode(HttpStatusCode status) {
         HttpStatus resolvedStatus = HttpStatus.resolve(status.value());
 
@@ -204,7 +284,27 @@ public class GlobalApiExceptionHandler extends ResponseEntityExceptionHandler {
         return "";
     }
 
+    private ErrorDetails mapValidationCode(@Nullable String code) {
+        if (code != null) {
+            return switch (code) {
+                case "NotBlank", "NotNull", "NotEmpty" -> new ErrorDetails(FIELD_REQUIRED_ERROR_CODE, FIELD_REQUIRED_ERROR_MESSAGE);
+                case "Email" -> new ErrorDetails(INVALID_EMAIL_ERROR_CODE, INVALID_EMAIL_ERROR_MESSAGE);
+                case "Size" -> new ErrorDetails(INVALID_SIZE_ERROR_CODE, INVALID_SIZE_ERROR_MESSAGE);
+                case "Min", "Max", "DecimalMin", "DecimalMax", "Positive",
+                     "PositiveOrZero", "Negative", "NegativeOrZero" -> new ErrorDetails(OUT_OF_RANGE_ERROR_CODE, OUT_OF_RANGE_ERROR_MESSAGE);
+                default -> new ErrorDetails(INVALID_VALUE_ERROR_CODE, INVALID_VALUE_ERROR_MESSAGE);
+            };
+        } else {
+            return new ErrorDetails(INVALID_VALUE_ERROR_CODE, INVALID_VALUE_ERROR_MESSAGE);
+        }
+    }
+
     private void logUnexpectedException(Exception exception, WebRequest request) {
         logger.error("Unexpected exception for request path " + requestPath(request), exception);
     }
+
+    private record ErrorDetails(
+            String code,
+            String message
+    ){}
 }

@@ -231,7 +231,7 @@ class GlobalApiExceptionHandlerWebMvcTest {
         }
     }
 
-    record RequestDTO(
+    private record RequestDTO(
             String name
     ) { }
 
