@@ -122,8 +122,9 @@ another module's repositories.
 
 The minimal `backend-api` skeleton can already be built, tested, and started.
 It includes the shared API error response DTOs and global Spring MVC exception
-handling, but still has no business endpoints, Bean Validation mapping, database
-connection, or messaging integration.
+handling. `@Valid @RequestBody` failures are translated into the same safe error
+contract with stable field-violation codes. The application still has no
+business endpoints, database connection, or messaging integration.
 
 Prerequisite: JDK 21.
 
@@ -157,12 +158,18 @@ respective Issues. See [Local development](docs/LOCAL_DEVELOPMENT.md).
   [Issue #8](https://github.com/AdrianJasieniecki/beautystock-crm/issues/8).
   It maps malformed requests, missing resources, conflicts, built-in MVC
   failures, and unexpected exceptions to the shared safe response contract.
+- Request-body Bean Validation was implemented and verified in
+  [PR #80](https://github.com/AdrianJasieniecki/beautystock-crm/pull/80),
+  completing
+  [Issue #10](https://github.com/AdrianJasieniecki/beautystock-crm/issues/10).
+  Field, object, and unknown validation errors use stable public codes and fixed
+  safe messages without exposing rejected values.
 - Business endpoints, persistence, messaging, containers, and the frontend have
   not been implemented yet.
 - The next selected task is
-  [Issue #10 — validation foundation](https://github.com/AdrianJasieniecki/beautystock-crm/issues/10).
-  Its dependencies on the API error model and global exception handler are
-  resolved, and it is `Ready` in the GitHub Project.
+  [Issue #11 — PostgreSQL and Flyway foundation](https://github.com/AdrianJasieniecki/beautystock-crm/issues/11).
+  It prepares real PostgreSQL persistence and migration testing before the first
+  Salon CRM vertical slice.
 
 See [Progress](docs/PROGRESS.md) for the current source of truth.
 
