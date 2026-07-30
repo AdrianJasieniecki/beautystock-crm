@@ -2,6 +2,10 @@ spring:
   config:
     activate:
       on-profile: local
+  datasource:
+    password: ${DB_PASSWORD}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
 
 server:
   port: ${SERVER_PORT:8080}
