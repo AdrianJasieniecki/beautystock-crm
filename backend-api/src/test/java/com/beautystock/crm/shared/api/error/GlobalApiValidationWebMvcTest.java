@@ -69,6 +69,7 @@ public class GlobalApiValidationWebMvcTest {
                 .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field").value("name"))
                 .andExpect(jsonPath("$.violations[0].code").value("FIELD_REQUIRED"))
+                .andExpect(jsonPath("$.violations[0].message").value("Field is required"))
                 .andExpect(jsonPath("$.correlationId").doesNotExist())
                 .andReturn();
         String responseBody = result.getResponse().getContentAsString();
@@ -99,6 +100,7 @@ public class GlobalApiValidationWebMvcTest {
                 .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field").value("name"))
                 .andExpect(jsonPath("$.violations[0].code").value("FIELD_REQUIRED"))
+                .andExpect(jsonPath("$.violations[0].message").value("Field is required"))
                 .andExpect(jsonPath("$.correlationId").doesNotExist())
                 .andReturn();
         String responseBody = result.getResponse().getContentAsString();
@@ -129,6 +131,7 @@ public class GlobalApiValidationWebMvcTest {
                 .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field").value("name"))
                 .andExpect(jsonPath("$.violations[0].code").value("FIELD_REQUIRED"))
+                .andExpect(jsonPath("$.violations[0].message").value("Field is required"))
                 .andExpect(jsonPath("$.correlationId").doesNotExist())
                 .andReturn();
         String responseBody = result.getResponse().getContentAsString();
@@ -159,6 +162,7 @@ public class GlobalApiValidationWebMvcTest {
                 .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field").value("email"))
                 .andExpect(jsonPath("$.violations[0].code").value("INVALID_EMAIL"))
+                .andExpect(jsonPath("$.violations[0].message").value("Invalid email format"))
                 .andExpect(jsonPath("$.correlationId").doesNotExist())
                 .andReturn();
         String responseBody = result.getResponse().getContentAsString();
@@ -189,6 +193,7 @@ public class GlobalApiValidationWebMvcTest {
                 .andExpect(jsonPath("$.violations", hasSize(1)))
                 .andExpect(jsonPath("$.violations[0].field").value("age"))
                 .andExpect(jsonPath("$.violations[0].code").value("OUT_OF_RANGE"))
+                .andExpect(jsonPath("$.violations[0].message").value("Value is out of range"))
                 .andExpect(jsonPath("$.correlationId").doesNotExist())
                 .andReturn();
         String responseBody = result.getResponse().getContentAsString();
