@@ -1,0 +1,2 @@
+-- Empty baseline migration.
+-- Establishes Flyway migration history before introducing the first domain tables.
