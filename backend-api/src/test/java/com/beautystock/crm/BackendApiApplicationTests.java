@@ -16,7 +16,10 @@ import javax.sql.DataSource;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,9 +53,16 @@ class BackendApiApplicationTests {
         assertThat(info.isApplied()).isTrue();
         assertThat(flyway.info().applied().length).isEqualTo(1);
         assertThat(entityManagerFactory.isOpen()).isTrue();
-        Connection connection = dataSource.getConnection();
-        DatabaseMetaData metadata = connection.getMetaData();
-        assertThat(metadata.getDatabaseProductName()).isEqualTo("PostgreSQL");
-        assertThat(metadata.getURL()).startsWith("jdbc:postgresql:");
+        try(Connection connection = dataSource.getConnection()) {
+            DatabaseMetaData metadata = connection.getMetaData();
+            assertThat(metadata.getDatabaseProductName()).isEqualTo("PostgreSQL");
+            assertThat(metadata.getURL()).startsWith("jdbc:postgresql:");
+            Set<String> tableNames = new HashSet<>();
+            ResultSet tables = metadata.getTables(null, "public", "%", new String[]{"TABLE"});
+            while (tables.next()) {
+                tableNames.add(tables.getString("TABLE_NAME"));
+            }
+            assertThat(tableNames).containsExactlyInAnyOrder("flyway_schema_history");
+        }
     }
 }
