@@ -123,20 +123,32 @@ another module's repositories.
 The minimal `backend-api` skeleton can already be built, tested, and started.
 It includes the shared API error response DTOs and global Spring MVC exception
 handling. `@Valid @RequestBody` failures are translated into the same safe error
-contract with stable field-violation codes. The application still has no
-business endpoints, database connection, or messaging integration.
+contract with stable field-violation codes. PostgreSQL, Spring Data JPA, Flyway,
+and a Docker-backed PostgreSQL integration test are configured. The application
+still has no business endpoints, business tables, or messaging integration.
 
-Prerequisite: JDK 21.
+Prerequisites for the complete build: JDK 21 and a running Docker environment.
 
 ```bash
 cd backend-api
 ./mvnw clean verify
+```
+
+The integration test starts PostgreSQL 17 through Testcontainers and does not
+use `.env.local`. To start the API manually, provide `DB_URL`, `DB_USERNAME`,
+and `DB_PASSWORD`, activate the `local` profile, and run:
+
+```bash
+set -a
+source .env.local
+set +a
 SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
 ```
 
-The API starts on port `8080` by default. Set `SERVER_PORT` to override it.
-PostgreSQL, RabbitMQ, the worker, and the frontend will be added in their
-respective Issues. See [Local development](docs/LOCAL_DEVELOPMENT.md).
+The local file is ignored by Git and must not contain shared or production
+credentials. The API starts on port `8080` by default; `SERVER_PORT` can
+override it. RabbitMQ, the worker, Compose, and the frontend remain planned.
+See [Local development](docs/LOCAL_DEVELOPMENT.md).
 
 ## Current status
 
@@ -164,12 +176,20 @@ respective Issues. See [Local development](docs/LOCAL_DEVELOPMENT.md).
   [Issue #10](https://github.com/AdrianJasieniecki/beautystock-crm/issues/10).
   Field, object, and unknown validation errors use stable public codes and fixed
   safe messages without exposing rejected values.
-- Business endpoints, persistence, messaging, containers, and the frontend have
-  not been implemented yet.
+- PostgreSQL persistence, Spring Data JPA, Flyway migrations, and
+  Testcontainers-based database bootstrap were introduced in
+  [PR #82](https://github.com/AdrianJasieniecki/beautystock-crm/pull/82),
+  completing
+  [Issue #11](https://github.com/AdrianJasieniecki/beautystock-crm/issues/11).
+  Flyway owns schema history, Hibernate validates rather than mutates the
+  schema, Open EntityManager in View is disabled, and the empty V1 baseline
+  deliberately creates no business tables.
+- Business endpoints and tables, messaging, application containers, and the
+  frontend have not been implemented yet.
 - The next selected task is
-  [Issue #11 — PostgreSQL and Flyway foundation](https://github.com/AdrianJasieniecki/beautystock-crm/issues/11).
-  It prepares real PostgreSQL persistence and migration testing before the first
-  Salon CRM vertical slice.
+  [Issue #13 — Create salon profile](https://github.com/AdrianJasieniecki/beautystock-crm/issues/13).
+  It is the first complete REST/JPA vertical slice and will introduce the first
+  business table in a new forward-only migration.
 
 See [Progress](docs/PROGRESS.md) for the current source of truth.
 

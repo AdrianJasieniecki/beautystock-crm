@@ -174,10 +174,10 @@ Representative validation-response shape:
 }
 ```
 
-The example path represents the planned Salon API and does not claim that the
-business endpoint is implemented. Field names, JSON types, stable validation
-codes, and optional-field behaviour are the implemented contract. Current
-handler responses omit `correlationId`.
+The example path represents the refined but not yet implemented Salon API from
+Issue #13. Field names, JSON types, stable validation codes, and optional-field
+behaviour of the error response are already implemented. Current handler
+responses omit `correlationId`.
 
 | Field | JSON type | Required | Rule |
 | --- | --- | --- | --- |
@@ -268,24 +268,23 @@ entities used as API payloads. The handler owns stable public codes and messages
 controllers must not manually inspect `BindingResult` or create a competing
 validation-error schema.
 
-Example create-salon request:
+Issue #13 fixes the first create-salon contract to this deliberately small
+request:
 
 ```json
 {
   "name": "Studio Urody Aurora",
   "email": "orders@aurora.example",
-  "phone": "+48 600 000 000",
-  "status": "LEAD",
-  "address": {
-    "street": "Example 10",
-    "postalCode": "00-001",
-    "city": "Warsaw",
-    "countryCode": "PL"
-  }
+  "phone": "+48 600 000 000"
 }
 ```
 
-Example response:
+`name` and `email` are required. `phone` is optional. The server trims leading
+and trailing whitespace, stores email in lowercase, converts a blank phone to
+`null`, generates the identifier and timestamps, and assigns the initial
+`LEAD` status. Clients cannot set server-owned fields in this request.
+
+Planned Issue #13 response:
 
 ```json
 {
@@ -294,19 +293,16 @@ Example response:
   "email": "orders@aurora.example",
   "phone": "+48 600 000 000",
   "status": "LEAD",
-  "address": {
-    "street": "Example 10",
-    "postalCode": "00-001",
-    "city": "Warsaw",
-    "countryCode": "PL"
-  },
   "createdAt": "2026-07-23T12:34:56.789Z",
   "updatedAt": "2026-07-23T12:34:56.789Z"
 }
 ```
 
-Exact required/optional fields require business confirmation during the Salon
-Issue refinement.
+The initial identifier is an opaque positive `Long`. Email is required and
+globally unique case-insensitively for this MVP. Both the application and
+PostgreSQL must enforce the normalization/uniqueness rule. Address data,
+client-selected lifecycle status, and additional profile fields are deferred
+until their use cases are refined.
 
 ## 8. Pagination
 

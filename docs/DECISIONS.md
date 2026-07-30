@@ -80,6 +80,13 @@ H2 as a behavioural substitute for PostgreSQL.
 - PostgreSQL-specific features may be used only with an explicit rationale;
 - local development requires Docker or a compatible PostgreSQL installation.
 
+### Implementation record
+
+Implemented on 2026-07-30 through Issue #11 and PR #82. The local profile uses
+an environment-backed PostgreSQL datasource, and the integration test uses a
+real PostgreSQL 17 container. No H2 dependency or behavioural substitute was
+introduced.
+
 ## ADR-004 — Use Flyway for schema migrations
 
 - **Status:** Accepted
@@ -102,6 +109,14 @@ migrations.
 - constraint and index changes receive normal review;
 - merged migrations are normally forward-only and should not be casually edited;
 - migration ordering and multi-replica execution require a deployment strategy.
+
+### Implementation record
+
+Implemented on 2026-07-30 through Issue #11 and PR #82. Flyway uses
+`classpath:db/migration`, V1 is an intentionally empty-domain baseline,
+Hibernate uses `ddl-auto=validate`, and Open EntityManager in View is disabled.
+Future domain schema changes start with a new forward-only migration; merged V1
+must not be edited.
 
 ## ADR-005 — Use React and TypeScript for the admin frontend
 

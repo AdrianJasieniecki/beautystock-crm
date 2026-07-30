@@ -141,11 +141,12 @@ error handling, PostgreSQL, Flyway, testing foundations, and configuration rules
 | Add API error response model | Task | High | Done | Skeleton |
 | Add global exception handling contract | Task | High | Done | API error model |
 | Add validation dependency and example request validation | Task | High | Done | Global handler and API error model |
-| Add PostgreSQL and Flyway configuration | Task | High | Ready | Skeleton |
+| Add PostgreSQL and Flyway configuration | Task | High | Done | Skeleton |
 
 The API error model, global exception handling, and request-body Bean Validation
-dependencies are complete. PostgreSQL, Flyway, and Testcontainers are the final
-selected foundation increment before the first Salon CRM story.
+dependencies are complete. PostgreSQL, Flyway, and Testcontainers were completed
+through Issue #11 and PR #82. The health endpoint remains a separate foundation
+task and does not block the first Salon CRM story.
 
 **Acceptance criteria:**
 
@@ -186,7 +187,7 @@ DTOs, validation, transactions, pagination, constraints, and meaningful tests.
 
 | Item | Type | Priority | Status | Depends on |
 | --- | --- | --- | --- | --- |
-| Create salon profile | Story | High | Proposed | Epic 2 |
+| Create salon profile | Story | High | Ready | Epic 2 |
 | List salons with pagination and filtering | Story | High | Proposed | Create salon |
 | View salon details | Story | High | Proposed | Create salon |
 | Update salon contact data | Story | High | Proposed | View salon |
@@ -200,9 +201,9 @@ Selected delivery order after the persistence foundation:
 4. update salon contact data (#16);
 5. add a note to a salon (#17).
 
-Only the next dependency-ready implementation item moves to `Ready`; later
-stories remain `Proposed` until their prerequisites and business decisions are
-confirmed.
+Issue #13 is the only dependency-ready Salon implementation item and moves to
+`Ready`; later stories remain `Proposed` until their prerequisites and business
+decisions are confirmed.
 
 **Acceptance criteria:**
 
@@ -214,7 +215,8 @@ confirmed.
 
 **Risks:**
 
-- unconfirmed assumption that email is globally unique;
+- case-insensitive email uniqueness must be implemented consistently in the
+  application and PostgreSQL;
 - notes may grow without pagination;
 - entities may accidentally leak through serialization;
 - eager relationships may create N+1 queries.
