@@ -3,9 +3,11 @@
 ## 1. Status
 
 The minimal `backend-api` Spring Boot skeleton exists and its build and startup
-commands are verified. PostgreSQL, RabbitMQ, `backend-worker`, `frontend`,
-Dockerfiles, and `compose.yml` are still planned. This document distinguishes
-commands that work now from the future full-system workflow.
+commands are verified. Its shared error handling and request-body Bean Validation
+mapping are implemented, while no business endpoint exists yet. PostgreSQL,
+RabbitMQ, `backend-worker`, `frontend`, Dockerfiles, and `compose.yml` are still
+planned. This document distinguishes commands that work now from the future
+full-system workflow.
 
 ## 2. Prerequisites
 

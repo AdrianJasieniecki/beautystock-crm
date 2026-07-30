@@ -140,11 +140,12 @@ error handling, PostgreSQL, Flyway, testing foundations, and configuration rules
 | Generate Spring Boot backend-api skeleton | Task | High | Done | Epic 1 |
 | Add API error response model | Task | High | Done | Skeleton |
 | Add global exception handling contract | Task | High | Done | API error model |
-| Add validation dependency and example request validation | Task | High | Ready | Global handler and API error model |
-| Add PostgreSQL and Flyway configuration | Task | High | Proposed | Skeleton |
+| Add validation dependency and example request validation | Task | High | Done | Global handler and API error model |
+| Add PostgreSQL and Flyway configuration | Task | High | Ready | Skeleton |
 
-The API error model and global exception handling dependencies are complete.
-Bean Validation and field-violation mapping are the next selected task.
+The API error model, global exception handling, and request-body Bean Validation
+dependencies are complete. PostgreSQL, Flyway, and Testcontainers are the final
+selected foundation increment before the first Salon CRM story.
 
 **Acceptance criteria:**
 
@@ -190,6 +191,18 @@ DTOs, validation, transactions, pagination, constraints, and meaningful tests.
 | View salon details | Story | High | Proposed | Create salon |
 | Update salon contact data | Story | High | Proposed | View salon |
 | Add note to salon | Story | Medium | Proposed | Create salon |
+
+Selected delivery order after the persistence foundation:
+
+1. create salon profile (#13);
+2. view salon details (#15);
+3. list salons with pagination and filtering (#14);
+4. update salon contact data (#16);
+5. add a note to a salon (#17).
+
+Only the next dependency-ready implementation item moves to `Ready`; later
+stories remain `Proposed` until their prerequisites and business decisions are
+confirmed.
 
 **Acceptance criteria:**
 

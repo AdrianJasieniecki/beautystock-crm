@@ -4,10 +4,10 @@
 
 This is primarily a design plan, not a complete implemented API specification.
 The shared error response DTO contract and global Spring MVC exception mapping
-in section 5 are implemented and tested. Bean Validation mapping and business
-resource endpoints remain planned. Endpoint details may change during Issue
-refinement. Every implemented endpoint must update this file or a future
-generated OpenAPI source of truth.
+in section 5 are implemented and tested. Request-body Bean Validation failures
+also use that contract. Business resource endpoints remain planned. Endpoint
+details may change during Issue refinement. Every implemented endpoint must
+update this file or a future generated OpenAPI source of truth.
 
 ## 2. General conventions
 
@@ -139,6 +139,7 @@ mapping with focused MVC slice tests:
 | Failure | HTTP status | Stable code | Client message |
 | --- | ---: | --- | --- |
 | Malformed or unreadable JSON | `400` | `MALFORMED_REQUEST` | Fixed safe message |
+| Invalid `@Valid @RequestBody` | `400` | `VALIDATION_ERROR` | `Request validation failed` plus safe violations |
 | Application resource not found | `404` | `RESOURCE_NOT_FOUND` | Explicit client-safe application message |
 | Unmapped or static resource not found | `404` | `RESOURCE_NOT_FOUND` | Fixed safe message |
 | Recognized application conflict | `409` | `CONFLICT` | Explicit client-safe application message |
@@ -149,7 +150,7 @@ example, method-not-allowed and unsupported-media-type failures return
 `METHOD_NOT_ALLOWED` and `UNSUPPORTED_MEDIA_TYPE`. Spring-provided headers such
 as `Allow` and `Accept` are preserved.
 
-Verified complete-response example:
+Representative validation-response shape:
 
 ```json
 {
@@ -157,28 +158,26 @@ Verified complete-response example:
   "status": 400,
   "code": "VALIDATION_ERROR",
   "message": "Request validation failed",
-  "path": "/api/customers",
-  "correlationId": "d541492a-5315-4be8-bc4b-8c6b07bfc3c7",
+  "path": "/api/v1/salons",
   "violations": [
     {
       "field": "email",
       "code": "INVALID_EMAIL",
-      "message": "Email address has an invalid format"
+      "message": "Invalid email format"
     },
     {
       "field": "name",
       "code": "FIELD_REQUIRED",
-      "message": "Name is required"
+      "message": "Field is required"
     }
   ]
 }
 ```
 
-The values above mirror the serialization fixture; the example path does not
-claim that a `/api/customers` endpoint is implemented. Field names, JSON types,
-and optional-field behaviour are the stable part of this contract. Current
-handler responses omit `correlationId`, and validation violations remain the
-scope of Issue #10.
+The example path represents the planned Salon API and does not claim that the
+business endpoint is implemented. Field names, JSON types, stable validation
+codes, and optional-field behaviour are the implemented contract. Current
+handler responses omit `correlationId`.
 
 | Field | JSON type | Required | Rule |
 | --- | --- | --- | --- |
@@ -192,6 +191,23 @@ scope of Issue #10.
 
 Each `violations` entry contains exactly three string properties: `field`,
 `code`, and `message`.
+
+`GlobalApiExceptionHandler` handles `MethodArgumentNotValidException` produced by
+`@Valid @RequestBody` and uses this initial public catalogue:
+
+| Validation source | Violation code | Safe message |
+| --- | --- | --- |
+| `NotBlank`, `NotNull`, `NotEmpty` | `FIELD_REQUIRED` | `Field is required` |
+| `Email` | `INVALID_EMAIL` | `Invalid email format` |
+| `Size` | `INVALID_SIZE` | `Invalid field size` |
+| Numeric sign/range constraints | `OUT_OF_RANGE` | `Value is out of range` |
+| Object/global validation error | `INVALID_REQUEST` | `Invalid value` |
+| Unknown or unavailable field code | `INVALID_VALUE` | `Invalid field value` |
+
+The catalogue stays deliberately small and close to the transport handler.
+Direct constraints on controller path/query parameters and specialized
+`HandlerMethodValidationException` mapping remain deferred until a real endpoint
+requires that contract.
 
 Rules:
 
@@ -209,8 +225,8 @@ Rules:
   request path while the public response remains generic;
 - expected `4xx` failures do not produce error-level stack traces from the
   application handler;
-- recognized constraint violations will be translated carefully without
-  exposing rejected values or SQL;
+- recognized request-body constraint violations are translated to the stable
+  catalogue without exposing rejected values or binding internals;
 - a caller-provided violations list is defensively copied, so the response does
   not change when the source collection is later mutated;
 - the global exception handler owns transport mapping; controllers must not
@@ -245,6 +261,12 @@ Validation has multiple layers:
 Bean Validation at the controller boundary does not replace business or database
 rules. Database exceptions should map to stable business/API conflicts only when
 the violated constraint is recognized.
+
+The implemented foundation covers JSON request DTOs passed as
+`@Valid @RequestBody`. Constraint annotations belong on request DTOs, not JPA
+entities used as API payloads. The handler owns stable public codes and messages;
+controllers must not manually inspect `BindingResult` or create a competing
+validation-error schema.
 
 Example create-salon request:
 

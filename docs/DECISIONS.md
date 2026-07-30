@@ -300,6 +300,7 @@ as an advanced follow-up.
 - **Date:** 2026-07-23
 - **Accepted:** 2026-07-25 after Issue #9 and PR #75
 - **Implemented:** 2026-07-27 after Issue #8 and PR #78
+- **Validation mapping implemented:** 2026-07-30 after Issue #10 and PR #80
 
 ### Context
 
@@ -317,6 +318,10 @@ Spring-selected status codes and protocol headers for built-in MVC failures.
 Return fixed safe messages for malformed/framework/unexpected failures and
 explicit client-safe messages for recognized application exceptions. Log
 unexpected `5xx` failures once with the exception and request path.
+Translate `@Valid @RequestBody` field and object errors into the same response
+using a small stable validation-code and safe-message catalogue. Unknown
+constraint codes fall back to `INVALID_VALUE`; rejected values and binding
+internals are never returned.
 
 ### Consequences
 
@@ -329,8 +334,10 @@ unexpected `5xx` failures once with the exception and request path.
   transport contract;
 - correlation identifiers remain absent until a trusted server-side propagation
   mechanism is introduced;
-- validation violations remain a separate follow-up so the transport boundary
-  does not grow beyond one reviewed concern at a time.
+- request-body validation failures now share the same transport contract;
+- direct path/query-parameter validation and
+  `HandlerMethodValidationException` remain deferred until a real endpoint
+  defines the required public behaviour.
 
 ## ADR-014 — Store time in UTC and expose ISO 8601
 

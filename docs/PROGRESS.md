@@ -1,16 +1,16 @@
 # Progress
 
-Last updated: 2026-07-27
+Last updated: 2026-07-30
 
 ## Current phase
 
 **Phase 1 — Backend API foundation**
 
 The documentation and GitHub delivery foundation, the runnable `backend-api`
-skeleton, the shared API error response model, and global exception handling are
-published. Issues #7, #9, and #8 are complete. The next recommended
-implementation task is
-`[Task] Add validation dependency and example request validation` (#10).
+skeleton, the shared API error response model, global exception handling, and
+request-body Bean Validation mapping are published. Issues #7, #9, #8, and #10
+are complete. The next recommended implementation task is
+`[Task] Add PostgreSQL and Flyway configuration` (#11).
 
 ## Completed
 
@@ -76,22 +76,38 @@ implementation task is
   [#5](https://github.com/AdrianJasieniecki/beautystock-crm/issues/5), and
   [#2](https://github.com/AdrianJasieniecki/beautystock-crm/issues/2) after
   confirming their acceptance criteria and moved their project items to `Done`.
+- Added the Spring Boot validation starter and specialized
+  `MethodArgumentNotValidException` handling for `@Valid @RequestBody`.
+- Added stable field-violation mappings for required values, email format, size,
+  numeric ranges, global errors, and unknown constraints without returning
+  rejected values or binding internals.
+- Verified valid, single-error, and multiple-error request scenarios with a
+  focused `@WebMvcTest`; the complete Java 21 build passed with 23 tests and no
+  failures.
+- Merged request validation through
+  [PR #80](https://github.com/AdrianJasieniecki/beautystock-crm/pull/80).
+- Closed
+  [Issue #10](https://github.com/AdrianJasieniecki/beautystock-crm/issues/10)
+  through the PR's `Closes #10` reference and confirmed its project item as
+  `Done`.
 
 ## In progress
 
 - No application implementation task is in progress.
-- Issue #10 has a reviewed implementation brief, its dependencies on the
-  response model and global exception handling are complete, and it is `Ready`
-  in the GitHub Project.
-- PostgreSQL and Flyway configuration remains proposed after the validation
-  foundation.
+- Issue #11 is the selected persistence-foundation task and is `Ready` in the
+  GitHub Project.
+- Salon CRM Issues #13, #15, #14, #16, and #17 form the next planned delivery
+  sequence but remain `Proposed` until their dependencies are complete.
 
 ## Next step
 
-The repository owner creates `feature/api-validation-foundation` from current
+The repository owner creates `feature/postgresql-flyway-foundation` from current
 `Production` and manually implements
-`[Task] Add validation dependency and example request validation` (#10) using
-the reviewed Issue brief. Move #10 to `In progress` when implementation begins.
+`[Task] Add PostgreSQL and Flyway configuration` (#11) using the reviewed Issue
+brief. Move #11 to `In progress` when implementation begins.
+
+After #11, refine and implement the Salon CRM sequence one item at a time:
+#13 create, #15 details, #14 list/filter, #16 contact update, and #17 notes.
 
 ## Open risks and decisions
 
@@ -114,7 +130,7 @@ the reviewed Issue brief. Move #10 to `In progress` when implementation begins.
 - [GitHub Project](https://github.com/users/AdrianJasieniecki/projects/5)
 - [Documentation foundation PR](https://github.com/AdrianJasieniecki/beautystock-crm/pull/1)
 - [Documentation foundation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/3)
-- [Next implementation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/10)
+- [Next implementation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/11)
 - [Roadmap](ROADMAP.md)
 - [Backlog](BACKLOG.md)
 - [Architecture decisions](DECISIONS.md)
