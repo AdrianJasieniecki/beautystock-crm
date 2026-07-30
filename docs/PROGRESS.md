@@ -8,9 +8,11 @@ Last updated: 2026-07-30
 
 The documentation and GitHub delivery foundation, the runnable `backend-api`
 skeleton, the shared API error response model, global exception handling, and
-request-body Bean Validation mapping are published. Issues #7, #9, #8, and #10
+request-body Bean Validation mapping are published. PostgreSQL persistence,
+Flyway schema management, JPA validation, and the first PostgreSQL
+Testcontainers foundation are also complete. Issues #7, #9, #8, #10, and #11
 are complete. The next recommended implementation task is
-`[Task] Add PostgreSQL and Flyway configuration` (#11).
+`[Story] Create salon profile` (#13).
 
 ## Completed
 
@@ -90,24 +92,42 @@ are complete. The next recommended implementation task is
   [Issue #10](https://github.com/AdrianJasieniecki/beautystock-crm/issues/10)
   through the PR's `Closes #10` reference and confirmed its project item as
   `Done`.
+- Added Spring Data JPA, Flyway with PostgreSQL support, the PostgreSQL JDBC
+  driver, and focused Testcontainers dependencies without manually overriding
+  Spring Boot-managed versions.
+- Configured the local profile to obtain `DB_URL`, `DB_USERNAME`, and
+  `DB_PASSWORD` from the environment. Configured common persistence policy with
+  Flyway enabled, Hibernate `ddl-auto=validate`, and Open EntityManager in View
+  disabled.
+- Added the comment-only `V1__baseline.sql` migration so Flyway owns schema
+  history before the first business table is designed.
+- Verified the complete application bootstrap against a fresh PostgreSQL 17
+  Testcontainer: V1 is applied once, JPA starts, the datasource is PostgreSQL,
+  and `flyway_schema_history` is the only table.
+- Verified `./mvnw clean verify` on Java 21 with Docker available: 23 tests
+  passed with no failures.
+- Merged the PostgreSQL/Flyway foundation through
+  [PR #82](https://github.com/AdrianJasieniecki/beautystock-crm/pull/82).
+- Closed
+  [Issue #11](https://github.com/AdrianJasieniecki/beautystock-crm/issues/11)
+  through the PR's `Closes #11` reference.
 
 ## In progress
 
 - No application implementation task is in progress.
-- Issue #11 is the selected persistence-foundation task and is `Ready` in the
+- Issue #13 is the selected first Salon CRM vertical slice and is `Ready` in the
   GitHub Project.
-- Salon CRM Issues #13, #15, #14, #16, and #17 form the next planned delivery
-  sequence but remain `Proposed` until their dependencies are complete.
+- Salon CRM Issues #15, #14, #16, and #17 remain `Proposed` until their
+  dependencies are complete.
 
 ## Next step
 
-The repository owner creates `feature/postgresql-flyway-foundation` from current
-`Production` and manually implements
-`[Task] Add PostgreSQL and Flyway configuration` (#11) using the reviewed Issue
-brief. Move #11 to `In progress` when implementation begins.
+The repository owner creates `feature/create-salon-profile` from current
+`Production` and manually implements `[Story] Create salon profile` (#13) using
+the refined Issue brief. Move #13 to `In progress` when implementation begins.
 
-After #11, refine and implement the Salon CRM sequence one item at a time:
-#13 create, #15 details, #14 list/filter, #16 contact update, and #17 notes.
+Continue the Salon CRM sequence one item at a time after #13: #15 details, #14
+list/filter, #16 contact update, and #17 notes.
 
 ## Open risks and decisions
 
@@ -115,7 +135,7 @@ After #11, refine and implement the Salon CRM sequence one item at a time:
 | --- | --- | --- |
 | Backend foundation versions | Resolved for current skeleton | Spring Boot 4.1.0 and Maven 3.9.16 via the project wrapper; review upgrades deliberately |
 | Maven monorepo structure | Resolved for current stage | Keep `backend-api` independent; revisit when another build requires aggregation (ADR-015) |
-| Salon email uniqueness | Open | Confirm business rule during Salon story refinement |
+| Salon email uniqueness | Resolved for #13 | Email is required and unique case-insensitively after trimming and lowercasing; reassess only if a real multi-salon contact use case appears |
 | Order state semantics | Open | Define transition table before implementing placement |
 | Inventory locking | Proposed | Validate optimistic locking with concurrency tests |
 | Message dual-write | Known risk | Use documented simple phase, then implement Outbox |
@@ -130,7 +150,7 @@ After #11, refine and implement the Salon CRM sequence one item at a time:
 - [GitHub Project](https://github.com/users/AdrianJasieniecki/projects/5)
 - [Documentation foundation PR](https://github.com/AdrianJasieniecki/beautystock-crm/pull/1)
 - [Documentation foundation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/3)
-- [Next implementation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/11)
+- [Next implementation Issue](https://github.com/AdrianJasieniecki/beautystock-crm/issues/13)
 - [Roadmap](ROADMAP.md)
 - [Backlog](BACKLOG.md)
 - [Architecture decisions](DECISIONS.md)

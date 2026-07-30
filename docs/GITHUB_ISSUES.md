@@ -546,7 +546,8 @@ constraints, transactions, pagination, filtering, and focused tests.
 
 ### Risks
 
-- Salon email uniqueness is an unconfirmed business assumption.
+- Email normalization and case-insensitive uniqueness must remain consistent
+  between the application and PostgreSQL.
 - Notes may grow without pagination.
 - Eager relationships may create N+1 queries.
 
@@ -578,7 +579,9 @@ with them.
 ### Scope
 
 - Create request DTO and response DTO.
-- Validate required contact/profile fields.
+- Accept required `name` and `email`, plus optional `phone`.
+- Normalize email to trimmed lowercase and blank phone to `null`.
+- Assign server-owned `LEAD` status, generated ID, and UTC timestamps.
 - Add salon persistence model and Flyway migration.
 - Add repository and application service/use case.
 - Add REST endpoint and mapping.
@@ -587,16 +590,19 @@ with them.
 ### Acceptance criteria
 
 - `POST /api/v1/salons` returns `201 Created`.
-- Response contains a generated ID and does not expose a JPA entity.
+- Response contains a generated positive `Long` ID, normalized fields, `LEAD`
+  status, and UTC timestamps and does not expose a JPA entity.
 - Invalid email and missing required fields return `400`.
-- Confirmed duplicate business key returns `409`.
+- Email is globally unique case-insensitively for this MVP; duplicates return
+  `409`.
 - Controller stays thin and service owns orchestration.
 - Database constraint independently protects uniqueness.
 - Tests cover success, validation, and duplicate conflict.
 
 ### Technical notes
 
-- Confirm whether email is globally unique before finalizing the migration.
+- Create `V2__create_salons_table.sql`; do not modify the merged V1 baseline.
+- Keep address and client-selected lifecycle status out of the create request.
 - Use constructor injection.
 - Persist new entities deliberately; do not reuse the entity as a request DTO.
 - Use UTC/auditing conventions selected by the project.
@@ -612,13 +618,13 @@ with them.
 
 ### Suggested implementation steps
 
-1. Confirm required fields and uniqueness rule.
-2. Write validation/API tests.
-3. Create DTOs and error mappings.
-4. Create migration and entity mapping.
-5. Add repository and use case.
-6. Add thin controller and mapper.
-7. Add integration tests and run the relevant build.
+1. Write the fixed request/response and validation tests.
+2. Create DTOs and deliberate mappings.
+3. Add the V2 migration and entity mapping.
+4. Add repository and transactional create use case.
+5. Map recognized duplicate-email failures to the existing conflict exception.
+6. Add the thin controller with `Location`.
+7. Add focused PostgreSQL integration tests and run the complete build.
 
 ### Suggested branch
 

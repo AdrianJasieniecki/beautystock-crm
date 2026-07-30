@@ -36,8 +36,9 @@ Exit criteria:
 
 **Status:** In progress. The Java 21/Spring Boot skeleton, shared API error
 response model, global exception handling, and request-body Bean Validation are
-complete. PostgreSQL, Flyway, and the first Testcontainers foundation are the
-next recommended increment.
+complete. PostgreSQL, Flyway, and the first Testcontainers foundation are also
+complete. The health endpoint remains in this phase, while the first Salon CRM
+vertical slice can start independently.
 
 **Goal:** create a minimal, maintainable Spring Boot service ready for feature
 development.

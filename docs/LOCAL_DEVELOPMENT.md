@@ -5,9 +5,10 @@
 The minimal `backend-api` Spring Boot skeleton exists and its build and startup
 commands are verified. Its shared error handling and request-body Bean Validation
 mapping are implemented, while no business endpoint exists yet. PostgreSQL,
-RabbitMQ, `backend-worker`, `frontend`, Dockerfiles, and `compose.yml` are still
-planned. This document distinguishes commands that work now from the future
-full-system workflow.
+Spring Data JPA, Flyway, and the first Testcontainers integration test are
+implemented. RabbitMQ, `backend-worker`, `frontend`, Dockerfiles, and
+`compose.yml` are still planned. This document distinguishes commands that work
+now from the future full-system workflow.
 
 ## 2. Prerequisites
 
@@ -20,7 +21,7 @@ Planned developer tools:
 | Maven | Use Maven 3.9.16 through the wrapper in `backend-api` |
 | Node.js | Active LTS selected in frontend foundation Issue |
 | npm/pnpm | One package manager selected and locked |
-| Docker | Docker Engine/Desktop with Compose v2 |
+| Docker | Running Docker Engine/Desktop; required by the PostgreSQL integration test |
 | API client | Optional: curl, HTTP client, or Postman |
 
 Verify the current backend toolchain:
@@ -31,42 +32,56 @@ cd backend-api
 ./mvnw -version
 ```
 
-Both commands must report Java 21. Verify the remaining tools when their project
-foundations are introduced:
+Both commands must report Java 21. The complete backend verification also
+requires Docker:
+
+```bash
+docker version
+```
+
+Verify the remaining tools when their project foundations are introduced:
 
 ```bash
 node --version
-docker version
 docker compose version
 ```
 
-## 3. Planned local services
+## 3. Local and planned services
 
-| Service | Purpose | Planned exposure |
+| Service | Purpose | Current state |
 | --- | --- | --- |
-| PostgreSQL | Application database | Host port chosen in Compose |
-| RabbitMQ | Event broker | AMQP plus local management UI |
-| backend-api | REST API | `8080` by default; override with `SERVER_PORT` |
-| backend-worker | Queue consumer | No public application port required except management |
-| frontend | Admin UI | Development or container port |
+| PostgreSQL | Application database | Local installation for manual startup; PostgreSQL 17 Testcontainer in tests; Compose exposure planned |
+| RabbitMQ | Event broker | Planned: AMQP plus local management UI |
+| backend-api | REST API | Implemented: `8080` by default; override with `SERVER_PORT` |
+| backend-worker | Queue consumer | Planned; no public application port required except management |
+| frontend | Admin UI | Planned development or container port |
 
-Ports for services other than `backend-api` are intentionally deferred to avoid
-documenting values before their configuration exists.
+The manual datasource URL selects the local PostgreSQL port. Compose ports remain
+intentionally deferred until Issue #53.
 
 ## 4. Environment configuration
 
-Use environment variables for environment-specific values. Commit only safe
-templates such as `.env.example`; never commit a real `.env`.
+Use environment variables for environment-specific values. The ignored
+`backend-api/.env.local` file may hold local-only values; never commit it or any
+real/shared credentials.
 
-Proposed variable categories:
+Implemented backend variables:
 
 ```text
-SPRING_PROFILES_ACTIVE
-DB_HOST
-DB_PORT
-DB_NAME
+DB_URL
 DB_USERNAME
 DB_PASSWORD
+SERVER_PORT
+SPRING_PROFILES_ACTIVE
+```
+
+`DB_URL` is a complete JDBC URL such as
+`jdbc:postgresql://localhost:<local-port>/<local-database>`. `SERVER_PORT` is
+optional and defaults to `8080`.
+
+Future components are expected to add variables such as:
+
+```text
 RABBITMQ_HOST
 RABBITMQ_PORT
 RABBITMQ_USERNAME
@@ -74,26 +89,27 @@ RABBITMQ_PASSWORD
 API_BASE_URL
 ```
 
-Names must be reconciled with actual Spring configuration during implementation.
-Examples should use clearly local-only credentials.
+Future names must be reconciled with their actual configuration during
+implementation. Examples must use clearly synthetic local-only credentials.
 
 ## 5. Spring profiles
 
 ### `local`
 
-- currently activates local configuration and reads the HTTP port from
-  `SERVER_PORT`, defaulting to `8080`;
-- will connect to local/Compose PostgreSQL and RabbitMQ when those integrations
-  are implemented;
+- activates the environment-backed PostgreSQL datasource using `DB_URL`,
+  `DB_USERNAME`, and `DB_PASSWORD`;
+- reads the HTTP port from `SERVER_PORT`, defaulting to `8080`;
+- runs Flyway before JPA validates the schema;
 - may later expose selected local management endpoints;
-- must not alter schema with Hibernate after persistence is introduced.
+- does not alter the schema with Hibernate.
 
 ### `test`
 
-- configured by tests, preferably with Testcontainers service connection or
-  dynamic properties;
-- isolated data per test context;
-- deterministic time/external effects where required.
+- the current integration test does not activate a separate profile;
+- `@ServiceConnection` supplies datasource connection details from a fresh
+  PostgreSQL 17 Testcontainer;
+- `.env.local` and a developer's local PostgreSQL are not used by tests;
+- deterministic time/external effects remain required where relevant.
 
 ### Production-like profile
 
@@ -112,13 +128,28 @@ From the repository root:
 ```bash
 cd backend-api
 ./mvnw clean verify
+```
+
+Docker must be running because the full build starts a PostgreSQL Testcontainer.
+It applies V1 from an empty database, starts JPA with schema validation, and runs
+the remaining unit, JSON, and MVC tests.
+
+To start the application manually, first provide a running PostgreSQL database
+and create the ignored `backend-api/.env.local` file with the three required
+datasource variables. Then, from `backend-api`:
+
+```bash
+set -a
+source .env.local
+set +a
 SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
 ```
 
 Expected results:
 
-- the build completes with the Spring context test passing;
+- the complete build passes 23 tests;
 - the application reports the `local` profile;
+- Flyway applies or validates V1 and Hibernate validates the resulting schema;
 - embedded Tomcat listens on port `8080`, unless `SERVER_PORT` overrides it;
 - `GET /` returns `404` because the foundation task deliberately adds no sample
   or business endpoint.
@@ -148,11 +179,14 @@ Run Maven commands from `backend-api`:
 ```bash
 ./mvnw test
 ./mvnw verify
-./mvnw spring-boot:run
+./mvnw clean verify
 ```
 
 `backend-api` is an independent Maven build. There is no root parent or
 aggregator build at this stage; see ADR-015 in [Architecture decisions](DECISIONS.md).
+Docker is required whenever the PostgreSQL integration test runs. Do not source
+`.env.local` for tests; the container service connection supplies test database
+properties.
 
 Test selection guidance:
 
@@ -177,10 +211,16 @@ The committed lockfile is authoritative. Do not mix npm, pnpm, and yarn lockfile
 ## 10. Database and Flyway
 
 - Flyway owns schema history.
-- Hibernate must not use `ddl-auto=update` in production-like environments.
+- `V1__baseline.sql` is an intentionally comment-only empty-domain migration;
+  the next business migration starts at V2.
+- Hibernate uses `ddl-auto=validate`; no profile may use `update`, `create`, or
+  `create-drop` as an alternative migration mechanism.
+- Open EntityManager in View is disabled so database access does not escape
+  deliberate application-service transaction boundaries.
 - Local reset instructions must name and limit the exact development volume or
   database; avoid broad destructive commands.
-- Never edit an already shared migration casually.
+- Do not edit the merged V1. Correct later schema changes with a new forward-only
+  migration.
 - Test migrations from an empty database and from the previous schema.
 
 ## 11. RabbitMQ
@@ -199,13 +239,14 @@ When startup fails:
 
 1. from `backend-api`, confirm `java -version` and `./mvnw -version` both report
    Java 21;
-2. confirm dependency containers are healthy, not merely started;
-3. check active Spring profile;
-4. check required environment variables without printing secrets;
-5. inspect Flyway migration status;
-6. check host/container port mapping;
-7. check RabbitMQ vhost/user permissions;
-8. use correlation/event IDs to follow logs;
+2. for tests, confirm Docker is running and can start containers;
+3. for manual startup, confirm local PostgreSQL is running;
+4. check the active Spring profile;
+5. check that `.env.local` was sourced and required variables exist without
+   printing their values;
+6. inspect Flyway migration status;
+7. check the JDBC host, database, and port without exposing credentials;
+8. when RabbitMQ exists, check its vhost/user permissions;
 9. run the smallest failing test;
 10. document a recurring fix in this file.
 
