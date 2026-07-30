@@ -2,6 +2,7 @@ package com.beautystock.crm;
 
 import jakarta.persistence.EntityManagerFactory;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.MigrationInfo;
 import org.flywaydb.core.api.MigrationVersion;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,9 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
 
 @Testcontainers
-@ActiveProfiles
 @SpringBootTest
 class BackendApiApplicationTests {
 
@@ -43,18 +44,17 @@ class BackendApiApplicationTests {
     private DataSource dataSource;
 
     @Test
-    void shouldApplyFlywayMigrationsAndBootstrapJpaOnEmptyPostgres() {
+    void shouldApplyFlywayMigrationsAndBootstrapJpaOnEmptyPostgres() throws SQLException{
         assertThat(postgres.isRunning()).isTrue();
-        assertThat(flyway.info().current().getVersion()).isEqualTo(MigrationVersion.fromVersion("1"));
-        assertThat(flyway.info().current().getDescription()).isEqualTo("baseline");
-        assertThat(flyway.info().current().isApplied()).isTrue();
+        MigrationInfo info = flyway.info().current();
+        assertThat(info.getVersion()).isEqualTo(MigrationVersion.fromVersion("1"));
+        assertThat(info.getDescription()).isEqualTo("baseline");
+        assertThat(info.isApplied()).isTrue();
+        assertThat(flyway.info().applied().length).isEqualTo(1);
         assertThat(entityManagerFactory.isOpen()).isTrue();
-        try (Connection connection = dataSource.getConnection()) {
-            DatabaseMetaData metadata = connection.getMetaData();
-            assertThat(metadata.getDatabaseProductName()).isEqualTo("PostgreSQL");
-            assertThat(metadata.getURL()).startsWith("jdbc:postgresql:");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        Connection connection = dataSource.getConnection();
+        DatabaseMetaData metadata = connection.getMetaData();
+        assertThat(metadata.getDatabaseProductName()).isEqualTo("PostgreSQL");
+        assertThat(metadata.getURL()).startsWith("jdbc:postgresql:");
     }
 }
